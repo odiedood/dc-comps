@@ -50,18 +50,12 @@ input:focus, select:focus { border-color: var(--accent); }
 }
 .kpi .lbl { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 .kpi .val { font-size: 1.25rem; font-weight: 650; margin-top: 4px; font-variant-numeric: tabular-nums; }
-.grid2 { display: grid; grid-template-columns: 1.4fr .9fr; gap: 12px; margin-bottom: 12px; }
-.grid2b { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-@media (max-width: 980px) { .grid2, .grid2b { grid-template-columns: 1fr; } }
 .panel {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px 14px 16px; box-shadow: var(--shadow); min-height: 320px;
+  padding: 12px 14px 16px; box-shadow: var(--shadow); min-height: 320px; margin-bottom: 12px;
 }
 .panel h2 { margin: 0 0 8px; font-size: .95rem; font-weight: 600; }
-.panel .ctrl { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.panel .ctrl label { font-size: .72rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
-.chart-box { position: relative; height: 340px; }
-.chart-box.sm { height: 300px; }
+.chart-box { position: relative; height: 640px; }
 .table-wrap {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
   overflow: auto; max-height: 560px; box-shadow: var(--shadow);
@@ -118,28 +112,9 @@ tr:hover { background: rgba(91,140,255,.08); }
   </div>
   <div class="err-banner" id="chartError" role="alert"></div>
   <div class="kpis" id="kpis"></div>
-  <div class="grid2">
-    <div class="panel">
-      <h2>Capex / MW vs $/MW / Yr</h2>
-      <div class="ctrl">
-        <label>Size<select id="sizeField"></select></label>
-      </div>
-      <div class="chart-box"><canvas id="bubbleChart"></canvas></div>
-    </div>
-    <div class="panel">
-      <h2>IT MW vs Base TCV</h2>
-      <div class="chart-box"><canvas id="scatterItTcv"></canvas></div>
-    </div>
-  </div>
-  <div class="grid2b">
-    <div class="panel">
-      <h2>NPV / MW vs NOI margin %</h2>
-      <div class="chart-box sm"><canvas id="scatterNpv"></canvas></div>
-    </div>
-    <div class="panel">
-      <h2>Base TCV by deal <span style="color:var(--muted);font-weight:500;font-size:.8rem">(top 15)</span></h2>
-      <div class="chart-box sm"><canvas id="barChart"></canvas></div>
-    </div>
+  <div class="panel">
+    <h2>Base TCV by deal <span style="color:var(--muted);font-weight:500;font-size:.8rem">(top 15)</span></h2>
+    <div class="chart-box"><canvas id="barChart"></canvas></div>
   </div>
   <h2 style="font-size:.95rem;margin:8px 0;">Deals <span id="tableCount" style="color:var(--muted);font-weight:500"></span></h2>
   <div class="table-wrap">
@@ -154,12 +129,6 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
 /*__COLO_DATA_END__*/
 
 (function () {
-  const SIZE_OPTS = [
-    {k:"itMw", l:"IT MW"},
-    {k:"baseTcvMm", l:"Base TCV"},
-    {k:"arrMm", l:"ARR"},
-    {k:"none", l:"None"},
-  ];
   const COLS = [
     {k:"deal", l:"Deal", num:false},
     {k:"ticker", l:"Ticker", num:false},
@@ -232,16 +201,10 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     minMw: document.getElementById("minMw"),
     year: document.getElementById("year"),
     wyfiOnly: document.getElementById("wyfiOnly"),
-    sizeField: document.getElementById("sizeField"),
     kpis: document.getElementById("kpis"),
     meta: document.getElementById("meta"),
     tableCount: document.getElementById("tableCount"),
   };
-
-  function fillSelect(sel, opts, def) {
-    sel.innerHTML = opts.map(o => "<option value=\"" + o.k + "\"" + (o.k===def?" selected":"") + ">" + o.l + "</option>").join("");
-  }
-  fillSelect(els.sizeField, SIZE_OPTS, "itMw");
 
   const tickers = [...new Set((DATA.deals||[]).map(d => d.ticker).filter(Boolean))].sort();
   tickers.forEach(t => {
@@ -313,7 +276,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     });
   }
 
-  let bubbleChart, scatterItTcv, scatterNpv, barChart;
+  let barChart;
 
   function pointColor(d, alpha=0.75) {
     if (d.isWyfi) return rgba("#a78bfa", alpha);
@@ -328,130 +291,18 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     return lines;
   }
 
-  function buildBubble(rows) {
-    const sk = els.sizeField.value;
-    const pts = [];
-    let maxS = 1;
-    rows.forEach(d => {
-      const x = num(d.capexPerMw);
-      const y = num(d.arrPerMw);
-      if (x == null || y == null) return;
-      const s = sk === "none" ? 8 : num(d[sk]);
-      if (sk !== "none" && s == null) return;
-      if (sk !== "none") maxS = Math.max(maxS, Math.abs(s));
-      pts.push({ x: x, y: y, r: 6, _deal: d, _s: s });
-    });
-    if (sk !== "none") {
-      pts.forEach(p => { p.r = Math.max(4, Math.sqrt(Math.abs(p._s)/maxS)*28); });
+  function barLabel(d) {
+    const raw = d.deal || "";
+    const ticker = String(d.ticker || "").trim();
+    let name = raw;
+    if (ticker) {
+      const prefix = ticker + " ";
+      if (name.slice(0, prefix.length).toLowerCase() === prefix.toLowerCase()) {
+        name = name.slice(prefix.length).trim();
+      }
     }
-    if (bubbleChart) bubbleChart.destroy();
-    bubbleChart = new Chart(document.getElementById("bubbleChart"), {
-      type: "bubble",
-      data: {
-        datasets: [{
-          label: "Deals",
-          data: pts,
-          backgroundColor: pts.map(p => pointColor(p._deal, 0.55)),
-          borderColor: pts.map(p => pointColor(p._deal, 1)),
-          borderWidth: 1,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: {
-            label(ctx) {
-              const r = ctx.raw;
-              if (!r || !r._deal) return ctx.formattedValue;
-              const d = r._deal;
-              return tipLines(d, [
-                "Capex/MW: " + fmt(d.capexPerMw) + " $mm",
-                "$/MW/Yr: " + fmt(d.arrPerMw) + " $mm",
-                num(d.itMw)!=null ? "IT MW: " + fmt(d.itMw) : null,
-                num(d.baseTcvMm)!=null ? "Base TCV: " + fmt(d.baseTcvMm) + " $mm" : null,
-              ].filter(Boolean));
-            }
-          }},
-        },
-        scales: {
-          x: { title: { display: true, text: "Capex / MW ($mm)" }, grid: { color: "#1e283a" } },
-          y: { title: { display: true, text: "$ / MW / Yr ($mm)" }, grid: { color: "#1e283a" } }
-        }
-      }
-    });
-  }
-
-  function buildScatterItTcv(rows) {
-    const pts = rows.filter(d => num(d.itMw)!=null && num(d.baseTcvMm)!=null).map(d => ({
-      x: d.itMw, y: d.baseTcvMm, _deal: d
-    }));
-    if (scatterItTcv) scatterItTcv.destroy();
-    scatterItTcv = new Chart(document.getElementById("scatterItTcv"), {
-      type: "scatter",
-      data: { datasets: [{
-        label: "IT vs TCV",
-        data: pts,
-        backgroundColor: pts.map(p => pointColor(p._deal, 0.7)),
-        borderColor: pts.map(p => pointColor(p._deal, 1)),
-        pointRadius: pts.map(p => p._deal.isWyfi ? 7 : 5),
-      }]},
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: {
-            label(ctx) {
-              const d = ctx.raw._deal;
-              return tipLines(d, [
-                "IT MW: " + fmt(d.itMw),
-                "Base TCV: " + fmt(d.baseTcvMm) + " $mm",
-              ]);
-            }
-          }}
-        },
-        scales: {
-          x: { title: { display: true, text: "IT Load (MW)" }, grid: { color: "#1e283a" } },
-          y: { title: { display: true, text: "Base TCV ($mm)" }, grid: { color: "#1e283a" } }
-        }
-      }
-    });
-  }
-
-  function buildScatterNpv(rows) {
-    const pts = rows.filter(d => num(d.npvPerMw)!=null && num(d.noiMarginPct)!=null).map(d => ({
-      x: d.noiMarginPct, y: d.npvPerMw, _deal: d
-    }));
-    if (scatterNpv) scatterNpv.destroy();
-    scatterNpv = new Chart(document.getElementById("scatterNpv"), {
-      type: "scatter",
-      data: { datasets: [{
-        label: "NPV vs NOI",
-        data: pts,
-        backgroundColor: pts.map(p => pointColor(p._deal, 0.7)),
-        borderColor: pts.map(p => pointColor(p._deal, 1)),
-        pointRadius: pts.map(p => p._deal.isWyfi ? 7 : 5),
-      }]},
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: {
-            label(ctx) {
-              const d = ctx.raw._deal;
-              return tipLines(d, [
-                "NOI margin: " + fmt(d.noiMarginPct) + "%",
-                "NPV/MW: " + fmt(d.npvPerMw) + " $mm",
-              ]);
-            }
-          }}
-        },
-        scales: {
-          x: { title: { display: true, text: "NOI margin %" }, grid: { color: "#1e283a" } },
-          y: { title: { display: true, text: "NPV / MW ($mm)" }, grid: { color: "#1e283a" } }
-        }
-      }
-    });
+    if (!name) name = raw;
+    return name.length > 32 ? name.slice(0, 30) + "…" : name;
   }
 
   function buildBar(rows) {
@@ -460,7 +311,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     barChart = new Chart(document.getElementById("barChart"), {
       type: "bar",
       data: {
-        labels: top.map(d => d.deal.length>26 ? d.deal.slice(0,24)+"…" : d.deal),
+        labels: top.map(barLabel),
         datasets: [{
           data: top.map(d => d.baseTcvMm),
           backgroundColor: top.map(d => pointColor(d, 0.7)),
@@ -479,7 +330,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
         }}},
         scales: {
           x: { title: { display: true, text: "Base TCV ($mm)" }, grid: { color: "#1e283a" } },
-          y: { grid: { display: false } }
+          y: { grid: { display: false }, ticks: { autoSkip: false } }
         }
       }
     });
@@ -562,9 +413,6 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     renderTable(rows);
     if (!chartsEnabled) return;
     try {
-      buildBubble(rows);
-      buildScatterItTcv(rows);
-      buildScatterNpv(rows);
       buildBar(rows);
     } catch (err) {
       console.error(err);
@@ -573,7 +421,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
   }
 
   ["input","change"].forEach(ev => {
-    [els.q, els.ticker, els.tenant, els.minMw, els.year, els.wyfiOnly, els.sizeField]
+    [els.q, els.ticker, els.tenant, els.minMw, els.year, els.wyfiOnly]
       .forEach(el => el.addEventListener(ev, render));
   });
 
