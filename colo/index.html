@@ -56,7 +56,7 @@ input:focus, select:focus { border-color: var(--accent); }
 }
 .panel h2 { margin: 0 0 8px; font-size: .95rem; font-weight: 600; }
 .panel h2 .hint { color: var(--muted); font-weight: 500; font-size: .8rem; }
-.chart-box { position: relative; height: 340px; }
+.chart-box { position: relative; height: 400px; }
 .chart-box.tall { height: 640px; }
 @media (max-width: 980px) { .chart-box.tall { height: 520px; } }
 .table-wrap {
@@ -115,15 +115,15 @@ tr:hover { background: rgba(91,140,255,.08); }
   <div class="kpis" id="kpis"></div>
   <div class="charts">
     <div class="panel">
-      <h2>Avg NOI / MW <span class="hint">vs date · teal = trend</span></h2>
+      <h2>Avg NOI / MW <span class="hint">vs date · color = tenant type · size = IT MW</span></h2>
       <div class="chart-box"><canvas id="noiChart"></canvas></div>
     </div>
     <div class="panel">
-      <h2>NPV / MW <span class="hint">vs date · bubble = total NPV</span></h2>
+      <h2>NPV / MW <span class="hint">vs date · color = tenant type · size = total NPV</span></h2>
       <div class="chart-box"><canvas id="npvChart"></canvas></div>
     </div>
     <div class="panel">
-      <h2>$ / MW / Yr <span class="hint">vs date · teal = trend</span></h2>
+      <h2>$ / MW / Yr <span class="hint">vs date · color = tenant type · size = IT MW</span></h2>
       <div class="chart-box"><canvas id="rentChart"></canvas></div>
     </div>
     <div class="panel">
@@ -307,6 +307,45 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     return name.length > 32 ? name.slice(0, 30) + "…" : name;
   }
 
+  // League-chart colors. data.json has no tenant-type field, so type is
+  // derived from the tenant string and applied the same way on every chart.
+  const TENANT_TYPES = [
+    { id: "hyperscaler", label: "Hyperscaler / IG", color: "#4F7FE6" },
+    { id: "backstopped", label: "Backstopped / IG", color: "#5CCBF2" },
+    { id: "frontier", label: "Frontier Lab", color: "#F08A3E" },
+    { id: "neocloud", label: "Neocloud", color: "#E0508F" },
+    { id: "other", label: "Other", color: "#9AA3B2" },
+  ];
+  const HYPERSCALERS = ["aws", "meta", "orcl", "oracle", "ig hyperscaler", "microsoft", "msft", "google", "googl", "amzn", "amazon"];
+  const FRONTIER_LABS = ["anthropic", "ai lab", "openai", "xai"];
+  const NEOCLOUDS = ["coreweave", "crwv", "fluidstack", "nscale", "core42", "tensorwave", "lambda", "crusoe", "neocloud"];
+
+  function tenantParts(d) {
+    return String(d.tenant || "").split(/\s*\/\s*/).map(s => s.trim()).filter(Boolean);
+  }
+
+  function tenantTypeId(d) {
+    const parts = tenantParts(d);
+    const low = parts.map(p => p.toLowerCase());
+    const isHyper = p => HYPERSCALERS.indexOf(p) !== -1;
+    const isLab = p => FRONTIER_LABS.indexOf(p) !== -1;
+    const isNeo = p => NEOCLOUDS.indexOf(p) !== -1;
+    if (parts.length >= 2 && (low.some(isHyper) || low.some(isLab) || low.some(isNeo))) return "backstopped";
+    const whole = low.join(" / ");
+    if (low.some(isHyper) || HYPERSCALERS.indexOf(whole) !== -1) return "hyperscaler";
+    if (low.some(isLab)) return "frontier";
+    if (low.some(isNeo)) return "neocloud";
+    return "other";
+  }
+
+  function tenantTypeMeta(d) {
+    const id = tenantTypeId(d);
+    for (let i = 0; i < TENANT_TYPES.length; i++) {
+      if (TENANT_TYPES[i].id === id) return TENANT_TYPES[i];
+    }
+    return TENANT_TYPES[TENANT_TYPES.length - 1];
+  }
+
   function dateOf(d) {
     const key = els.dateBasis && els.dateBasis.value === "start" ? "start" : "announced";
     const v = d[key];
@@ -385,30 +424,38 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
       pts.forEach((p, i) => { p.r = radii[i]; });
     }
     const trend = spec.trend === false ? [] : trendPoints(pts);
-    const datasets = [{
-      type: spec.size ? "bubble" : "scatter",
-      label: "Deals",
-      data: pts,
-      backgroundColor: rgba(ACCENT, 0.55),
-      borderColor: ACCENT,
-      borderWidth: 1,
-      pointRadius: spec.size ? undefined : 5,
-      pointHoverRadius: spec.size ? undefined : 7,
-    }];
+    const datasets = [];
+    TENANT_TYPES.forEach(tt => {
+      const data = pts.filter(p => tenantTypeId(p._deal) === tt.id);
+      if (!data.length) return;
+      datasets.push({
+        type: "bubble",
+        label: tt.label,
+        data: data,
+        backgroundColor: rgba(tt.color, 0.78),
+        borderColor: tt.color,
+        borderWidth: 1,
+        pointStyle: "circle",
+        order: 2,
+      });
+    });
     if (trend.length === 2) {
       datasets.push({
         type: "line",
         label: "Trend",
         data: trend,
-        borderColor: ACCENT2,
-        borderWidth: 2,
+        borderColor: "#d5deea",
+        borderDash: [6, 4],
+        borderWidth: 1.5,
         pointRadius: 0,
         pointHitRadius: 0,
+        pointStyle: "line",
         tension: 0,
+        order: 1,
       });
     }
     replaceChart(id, {
-      type: spec.size ? "bubble" : "scatter",
+      type: "bubble",
       data: { datasets: datasets },
       options: {
         animation: false,
@@ -416,14 +463,21 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: trend.length === 2,
-            labels: { boxWidth: 18, filter: function (item) { return item.text === "Trend"; } },
+            display: true,
+            position: "top",
+            labels: {
+              boxWidth: 10,
+              padding: 8,
+              usePointStyle: true,
+              font: { size: 11 },
+            },
           },
           tooltip: { callbacks: {
             label(ctx) {
               const d = ctx.raw && ctx.raw._deal;
               if (!d) return "Trend";
-              return tipLines(d, spec.tips(d));
+              const typeLine = "Type: " + tenantTypeMeta(d).label;
+              return tipLines(d, [typeLine].concat(spec.tips(d)));
             }
           }}
         },
@@ -438,8 +492,15 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
   function buildNoi(rows) {
     buildTimeScatter("noiChart", rows, {
       y: avgNoiPerMw,
+      size: d => num(d.itMw) || 0,
       yTitle: "Avg NOI / MW ($mm)",
-      tips(d) { return ["Avg NOI/MW: " + fmt(avgNoiPerMw(d)) + " $mm", dateAxisTitle() + ": " + (dateOf(d) || "—")]; },
+      tips(d) {
+        return [
+          "Avg NOI/MW: " + fmt(avgNoiPerMw(d)) + " $mm",
+          "IT MW: " + fmt(d.itMw, 0),
+          dateAxisTitle() + ": " + (dateOf(d) || "—"),
+        ];
+      },
     });
   }
 
@@ -462,8 +523,15 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
   function buildRent(rows) {
     buildTimeScatter("rentChart", rows, {
       y: d => num(d.arrPerMw),
+      size: d => num(d.itMw) || 0,
       yTitle: "$ / MW / Yr ($mm)",
-      tips(d) { return ["$/MW/Yr: " + fmt(d.arrPerMw) + " $mm", dateAxisTitle() + ": " + (dateOf(d) || "—")]; },
+      tips(d) {
+        return [
+          "$/MW/Yr: " + fmt(d.arrPerMw) + " $mm",
+          "IT MW: " + fmt(d.itMw, 0),
+          dateAxisTitle() + ": " + (dateOf(d) || "—"),
+        ];
+      },
     });
   }
 
