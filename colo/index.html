@@ -11,7 +11,6 @@
 :root {
   --bg: #0b0f17; --panel: #121826; --panel2: #1a2233; --border: #2a3548;
   --text: #e8eef8; --muted: #9aa8bf; --accent: #5b8cff; --accent2: #3dd6c6;
-  --wyfi: #a78bfa; --wyfi-bg: rgba(167,139,250,.18);
   --card: #151d2c;
   --input: #0e1522; --shadow: 0 8px 24px rgba(0,0,0,.35); --radius: 12px;
   font-family: Inter, Segoe UI, system-ui, -apple-system, sans-serif;
@@ -28,7 +27,7 @@ header h1 { margin: 0; font-size: 1.25rem; font-weight: 650; }
 header .sub { color: var(--muted); font-size: .85rem; }
 .wrap { padding: 16px 20px 40px; max-width: 1600px; margin: 0 auto; }
 .filters {
-  display: grid; grid-template-columns: 1.4fr 1fr 1fr 0.8fr 0.8fr auto auto;
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 0.7fr 0.7fr 0.9fr;
   gap: 10px; margin: 14px 0 18px; align-items: end;
 }
 @media (max-width: 1100px) { .filters { grid-template-columns: 1fr 1fr 1fr; } }
@@ -39,8 +38,6 @@ input, select {
   border-radius: 8px; padding: 8px 10px; font-size: .9rem; outline: none;
 }
 input:focus, select:focus { border-color: var(--accent); }
-.check { flex-direction: row; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font-size: .85rem; color: var(--text); padding-bottom: 8px; }
-.check input { width: 16px; height: 16px; }
 .kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 16px; }
 @media (max-width: 1200px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 640px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
@@ -50,12 +47,18 @@ input:focus, select:focus { border-color: var(--accent); }
 }
 .kpi .lbl { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 .kpi .val { font-size: 1.25rem; font-weight: 650; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.charts .span2 { grid-column: 1 / -1; }
+@media (max-width: 980px) { .charts { grid-template-columns: 1fr; } }
 .panel {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px 14px 16px; box-shadow: var(--shadow); min-height: 320px; margin-bottom: 12px;
+  padding: 12px 14px 16px; box-shadow: var(--shadow);
 }
 .panel h2 { margin: 0 0 8px; font-size: .95rem; font-weight: 600; }
-.chart-box { position: relative; height: 640px; }
+.panel h2 .hint { color: var(--muted); font-weight: 500; font-size: .8rem; }
+.chart-box { position: relative; height: 340px; }
+.chart-box.tall { height: 640px; }
+@media (max-width: 980px) { .chart-box.tall { height: 520px; } }
 .table-wrap {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
   overflow: auto; max-height: 560px; box-shadow: var(--shadow);
@@ -69,13 +72,7 @@ th {
 th:hover { color: var(--text); }
 th.sorted { color: var(--accent2); }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
-tr.wyfi { background: var(--wyfi-bg); }
-tr.wyfi td:first-child { color: var(--wyfi); font-weight: 600; }
 tr:hover { background: rgba(91,140,255,.08); }
-.badge {
-  display: inline-block; font-size: .65rem; padding: 2px 6px; border-radius: 999px;
-  background: var(--wyfi); color: #1a1028; font-weight: 700; margin-left: 6px; vertical-align: middle;
-}
 .foot { color: var(--muted); font-size: .75rem; margin-top: 14px; }
 .empty { color: var(--muted); padding: 40px; text-align: center; }
 .err-banner {
@@ -107,20 +104,42 @@ tr:hover { background: rgba(91,140,255,.08); }
     <label class="f">Announce year
       <select id="year"><option value="">All years</option></select>
     </label>
-    <label class="f check"><input id="wyfiOnly" type="checkbox" /> WYFI-only</label>
-    
+    <label class="f">Date axis
+      <select id="dateBasis">
+        <option value="announced" selected>Announced</option>
+        <option value="start">Start</option>
+      </select>
+    </label>
   </div>
   <div class="err-banner" id="chartError" role="alert"></div>
   <div class="kpis" id="kpis"></div>
-  <div class="panel">
-    <h2>Base TCV by deal <span style="color:var(--muted);font-weight:500;font-size:.8rem">(top 15)</span></h2>
-    <div class="chart-box"><canvas id="barChart"></canvas></div>
+  <div class="charts">
+    <div class="panel">
+      <h2>Avg NOI / MW <span class="hint">vs date · teal = trend</span></h2>
+      <div class="chart-box"><canvas id="noiChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>NPV / MW <span class="hint">vs date · bubble = total NPV</span></h2>
+      <div class="chart-box"><canvas id="npvChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>$ / MW / Yr <span class="hint">vs date · teal = trend</span></h2>
+      <div class="chart-box"><canvas id="rentChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Cumulative contracted IT MW <span class="hint">vs date</span></h2>
+      <div class="chart-box"><canvas id="mwChart"></canvas></div>
+    </div>
+    <div class="panel span2">
+      <h2>Base TCV by deal <span class="hint">(top 15)</span></h2>
+      <div class="chart-box tall"><canvas id="barChart"></canvas></div>
+    </div>
   </div>
   <h2 style="font-size:.95rem;margin:8px 0;">Deals <span id="tableCount" style="color:var(--muted);font-weight:500"></span></h2>
   <div class="table-wrap">
     <table id="dealTable"><thead></thead><tbody></tbody></table>
   </div>
-  <p class="foot">Purple = WYFI. Data compiled from public filings and press releases. &copy; @riskonbobby</p>
+  <p class="foot">Data compiled from public filings and press releases. &copy; @riskonbobby</p>
 </div>
 
 <script>
@@ -150,20 +169,10 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     {k:"pctPricePct", l:"% Price", num:true},
   ];
 
-  const TICKER_PALETTE = [
-    "#5b8cff","#3dd6c6","#f0a05a","#e8729a","#7bd88f","#c4b5fd",
-    "#f472b6","#38bdf8","#fbbf24","#a3e635","#fb7185","#67e8f9","#d4a373",
-  ];
-  const tickerColorMap = {};
-  function colorForTicker(t) {
-    if (!t) return "#5b8cff";
-    if (String(t).toUpperCase() === "WYFI") return "#a78bfa";
-    if (!tickerColorMap[t]) {
-      const keys = Object.keys(tickerColorMap);
-      tickerColorMap[t] = TICKER_PALETTE[keys.length % TICKER_PALETTE.length];
-    }
-    return tickerColorMap[t];
-  }
+  const ACCENT = "#5b8cff";
+  const ACCENT2 = "#3dd6c6";
+  const GRID = "#1e283a";
+
   function rgba(hex, a) {
     const h = hex.replace("#","");
     const n = parseInt(h.length===3 ? h.split("").map(c=>c+c).join("") : h, 16);
@@ -200,7 +209,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     tenant: document.getElementById("tenant"),
     minMw: document.getElementById("minMw"),
     year: document.getElementById("year"),
-    wyfiOnly: document.getElementById("wyfiOnly"),
+    dateBasis: document.getElementById("dateBasis"),
     kpis: document.getElementById("kpis"),
     meta: document.getElementById("meta"),
     tableCount: document.getElementById("tableCount"),
@@ -258,9 +267,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     const ten = els.tenant.value;
     const year = els.year.value;
     const minMw = parseFloat(els.minMw.value);
-    const wyfiOnly = els.wyfiOnly.checked;
     return (DATA.deals || []).filter(d => {
-      if (wyfiOnly && !d.isWyfi) return false;
       if (tick && d.ticker !== tick) return false;
       if (ten && d.tenant !== ten) return false;
       if (year && !(d.announced||"").startsWith(year)) return false;
@@ -276,12 +283,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     });
   }
 
-  let barChart;
-
-  function pointColor(d, alpha=0.75) {
-    if (d.isWyfi) return rgba("#a78bfa", alpha);
-    return rgba(colorForTicker(d.ticker), alpha);
-  }
+  const charts = {};
 
   function tipLines(d, extra) {
     const lines = [d.deal];
@@ -305,23 +307,229 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     return name.length > 32 ? name.slice(0, 30) + "…" : name;
   }
 
+  function dateOf(d) {
+    const key = els.dateBasis && els.dateBasis.value === "start" ? "start" : "announced";
+    const v = d[key];
+    return (v && /^\d{4}-\d{2}-\d{2}/.test(v)) ? v.slice(0, 10) : null;
+  }
+
+  function dateAxisTitle() {
+    return els.dateBasis && els.dateBasis.value === "start" ? "Start date" : "Announced";
+  }
+
+  function avgNoiPerMw(d) {
+    const noi = num(d.avgNoiYrMm);
+    const mw = num(d.itMw);
+    if (noi == null || mw == null || mw === 0) return null;
+    return noi / mw;
+  }
+
+  function timeScale() {
+    return {
+      type: "time",
+      time: {
+        tooltipFormat: "yyyy-MM-dd",
+        displayFormats: { month: "MMM yyyy", quarter: "MMM yyyy", year: "yyyy" },
+      },
+      title: { display: true, text: dateAxisTitle() },
+      grid: { color: GRID },
+    };
+  }
+
+  function trendPoints(pts) {
+    if (pts.length < 2) return [];
+    const xs = pts.map(p => new Date(p.x).getTime());
+    const ys = pts.map(p => p.y);
+    const n = xs.length;
+    const meanX = xs.reduce((a, b) => a + b, 0) / n;
+    const meanY = ys.reduce((a, b) => a + b, 0) / n;
+    let nume = 0, deno = 0;
+    for (let i = 0; i < n; i++) {
+      nume += (xs[i] - meanX) * (ys[i] - meanY);
+      deno += (xs[i] - meanX) * (xs[i] - meanX);
+    }
+    if (!deno) return [];
+    const slope = nume / deno;
+    const intercept = meanY - slope * meanX;
+    const minX = Math.min.apply(null, xs);
+    const maxX = Math.max.apply(null, xs);
+    return [
+      { x: minX, y: intercept + slope * minX },
+      { x: maxX, y: intercept + slope * maxX },
+    ];
+  }
+
+  function bubbleRadii(values) {
+    const abs = values.map(v => Math.abs(num(v) || 0));
+    const max = Math.max.apply(null, abs.concat([1]));
+    return abs.map(v => Math.max(5, Math.sqrt(v / max) * 26));
+  }
+
+  function replaceChart(id, config) {
+    if (charts[id]) charts[id].destroy();
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    charts[id] = new Chart(canvas, config);
+  }
+
+  function buildTimeScatter(id, rows, spec) {
+    const pts = [];
+    rows.forEach(d => {
+      const x = dateOf(d);
+      const y = spec.y(d);
+      if (!x || y == null) return;
+      pts.push({ x: x, y: y, _deal: d });
+    });
+    if (spec.size) {
+      const radii = bubbleRadii(pts.map(p => spec.size(p._deal)));
+      pts.forEach((p, i) => { p.r = radii[i]; });
+    }
+    const trend = spec.trend === false ? [] : trendPoints(pts);
+    const datasets = [{
+      type: spec.size ? "bubble" : "scatter",
+      label: "Deals",
+      data: pts,
+      backgroundColor: rgba(ACCENT, 0.55),
+      borderColor: ACCENT,
+      borderWidth: 1,
+      pointRadius: spec.size ? undefined : 5,
+      pointHoverRadius: spec.size ? undefined : 7,
+    }];
+    if (trend.length === 2) {
+      datasets.push({
+        type: "line",
+        label: "Trend",
+        data: trend,
+        borderColor: ACCENT2,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHitRadius: 0,
+        tension: 0,
+      });
+    }
+    replaceChart(id, {
+      type: spec.size ? "bubble" : "scatter",
+      data: { datasets: datasets },
+      options: {
+        animation: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: trend.length === 2,
+            labels: { boxWidth: 18, filter: function (item) { return item.text === "Trend"; } },
+          },
+          tooltip: { callbacks: {
+            label(ctx) {
+              const d = ctx.raw && ctx.raw._deal;
+              if (!d) return "Trend";
+              return tipLines(d, spec.tips(d));
+            }
+          }}
+        },
+        scales: {
+          x: timeScale(),
+          y: { title: { display: true, text: spec.yTitle }, grid: { color: GRID } },
+        },
+      },
+    });
+  }
+
+  function buildNoi(rows) {
+    buildTimeScatter("noiChart", rows, {
+      y: avgNoiPerMw,
+      yTitle: "Avg NOI / MW ($mm)",
+      tips(d) { return ["Avg NOI/MW: " + fmt(avgNoiPerMw(d)) + " $mm", dateAxisTitle() + ": " + (dateOf(d) || "—")]; },
+    });
+  }
+
+  function buildNpv(rows) {
+    buildTimeScatter("npvChart", rows, {
+      y: d => num(d.npvPerMw),
+      size: d => num(d.npv10) || 0,
+      yTitle: "NPV / MW ($mm)",
+      trend: false,
+      tips(d) {
+        return [
+          "NPV/MW: " + fmt(d.npvPerMw) + " $mm",
+          "Total NPV: " + fmt(d.npv10) + " $mm",
+          dateAxisTitle() + ": " + (dateOf(d) || "—"),
+        ];
+      },
+    });
+  }
+
+  function buildRent(rows) {
+    buildTimeScatter("rentChart", rows, {
+      y: d => num(d.arrPerMw),
+      yTitle: "$ / MW / Yr ($mm)",
+      tips(d) { return ["$/MW/Yr: " + fmt(d.arrPerMw) + " $mm", dateAxisTitle() + ": " + (dateOf(d) || "—")]; },
+    });
+  }
+
+  function buildCumulative(rows) {
+    const byDate = new Map();
+    rows.forEach(d => {
+      const x = dateOf(d);
+      const mw = num(d.itMw);
+      if (!x || mw == null) return;
+      byDate.set(x, (byDate.get(x) || 0) + mw);
+    });
+    let run = 0;
+    const pts = [...byDate.keys()].sort().map(x => {
+      run += byDate.get(x);
+      return { x: x, y: run };
+    });
+    replaceChart("mwChart", {
+      type: "line",
+      data: { datasets: [{
+        label: "Cumulative IT MW",
+        data: pts,
+        borderColor: ACCENT2,
+        backgroundColor: rgba(ACCENT2, 0.18),
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: ACCENT2,
+        fill: true,
+        tension: 0,
+      }]},
+      options: {
+        animation: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label(ctx) { return "Cumulative IT MW: " + fmt(ctx.parsed.y, 0); }
+          }}
+        },
+        scales: {
+          x: timeScale(),
+          y: { title: { display: true, text: "Cumulative IT MW" }, beginAtZero: true, grid: { color: GRID } },
+        },
+      },
+    });
+  }
+
   function buildBar(rows) {
     const top = rows.filter(d => num(d.baseTcvMm)!=null).sort((a,b)=>b.baseTcvMm-a.baseTcvMm).slice(0,15);
-    if (barChart) barChart.destroy();
-    barChart = new Chart(document.getElementById("barChart"), {
+    replaceChart("barChart", {
       type: "bar",
       data: {
         labels: top.map(barLabel),
         datasets: [{
           data: top.map(d => d.baseTcvMm),
-          backgroundColor: top.map(d => pointColor(d, 0.7)),
-          borderColor: top.map(d => pointColor(d, 1)),
-          borderWidth: 1, borderRadius: 4,
+          backgroundColor: rgba(ACCENT, 0.72),
+          borderColor: ACCENT,
+          borderWidth: 1,
+          borderRadius: 4,
         }]
       },
       options: {
+        animation: false,
         indexAxis: "y",
-        responsive: true, maintainAspectRatio: false,
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: {
           label(ctx) {
             const d = top[ctx.dataIndex];
@@ -329,7 +537,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
           }
         }}},
         scales: {
-          x: { title: { display: true, text: "Base TCV ($mm)" }, grid: { color: "#1e283a" } },
+          x: { title: { display: true, text: "Base TCV ($mm)" }, grid: { color: GRID } },
           y: { grid: { display: false }, ticks: { autoSkip: false } }
         }
       }
@@ -344,7 +552,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
       { lbl: "Med $/MW/Yr", val: median(rows.map(d => num(d.arrPerMw))) },
       { lbl: "Med Capex/MW", val: median(rows.map(d => num(d.capexPerMw))) },
       { lbl: "Med NPV/MW", val: median(rows.map(d => num(d.npvPerMw))) },
-      { lbl: "Med NOI margin %", val: median(rows.map(d => num(d.noiMarginPct))) },
+      { lbl: "Med Avg NOI/MW", val: median(rows.map(avgNoiPerMw)) },
     ];
     els.kpis.innerHTML = cards.map(c =>
       "<div class=\"kpi\"><div class=\"lbl\">" + c.lbl + "</div><div class=\"val\">" +
@@ -394,16 +602,10 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     tbody.innerHTML = sorted.map(d => {
       const cells = COLS.map(c => {
         const v = d[c.k];
-        if (c.k === "deal") {
-          let badges = "";
-          if (d.isWyfi) badges += "<span class=\"badge\">WYFI</span>";
-          return "<td>" + escapeHtml(d.deal||"") + badges + "</td>";
-        }
         if (c.num) return "<td class=\"num\">" + fmt(num(v)) + "</td>";
         return "<td>" + escapeHtml(v == null ? "—" : String(v)) + "</td>";
       }).join("");
-      const cls = d.isWyfi ? "wyfi" : "";
-      return "<tr class=\"" + cls + "\">" + cells + "</tr>";
+      return "<tr>" + cells + "</tr>";
     }).join("") || ("<tr><td colspan=\"" + COLS.length + "\" class=\"empty\">No deals match filters</td></tr>");
   }
 
@@ -413,6 +615,10 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
     renderTable(rows);
     if (!chartsEnabled) return;
     try {
+      buildNoi(rows);
+      buildNpv(rows);
+      buildRent(rows);
+      buildCumulative(rows);
       buildBar(rows);
     } catch (err) {
       console.error(err);
@@ -421,7 +627,7 @@ const DATA = {"deals":[{"col":"111","deal":"CORZ 200","tenant":"CoreWeave","anno
   }
 
   ["input","change"].forEach(ev => {
-    [els.q, els.ticker, els.tenant, els.minMw, els.year, els.wyfiOnly]
+    [els.q, els.ticker, els.tenant, els.minMw, els.year, els.dateBasis]
       .forEach(el => el.addEventListener(ev, render));
   });
 
