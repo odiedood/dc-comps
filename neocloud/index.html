@@ -4,15 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Neocloud Comps KPI Visualizer</title>
-<!-- Local vendor Chart UMD + date adapter -->
+<!-- Local vendor Chart UMD + date adapter — offline only, no CDN -->
 <script src="./vendor/chart.umd.min.js"></script>
 <script src="./vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
 <style>
-
 :root {
   --bg: #0b0f17; --panel: #121826; --panel2: #1a2233; --border: #2a3548;
   --text: #e8eef8; --muted: #9aa8bf; --accent: #5b8cff; --accent2: #3dd6c6;
-  --wyfi: #a78bfa; --wyfi-bg: rgba(167,139,250,.18); --card: #151d2c;
+  --card: #151d2c;
   --input: #0e1522; --shadow: 0 8px 24px rgba(0,0,0,.35); --radius: 12px;
   font-family: Inter, Segoe UI, system-ui, -apple-system, sans-serif;
 }
@@ -28,45 +27,45 @@ header h1 { margin: 0; font-size: 1.25rem; font-weight: 650; }
 header .sub { color: var(--muted); font-size: .85rem; }
 .wrap { padding: 16px 20px 40px; max-width: 1600px; margin: 0 auto; }
 .filters {
-  display: grid; grid-template-columns: 1.4fr 1fr 1fr auto auto;
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 0.7fr 0.7fr 0.8fr 0.8fr;
   gap: 10px; margin: 14px 0 18px; align-items: end;
 }
-@media (max-width: 980px) { .filters { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1100px) { .filters { grid-template-columns: 1fr 1fr 1fr; } }
+@media (max-width: 640px) { .filters { grid-template-columns: 1fr 1fr; } }
 label.f { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 input, select {
   background: var(--input); color: var(--text); border: 1px solid var(--border);
   border-radius: 8px; padding: 8px 10px; font-size: .9rem; outline: none;
 }
 input:focus, select:focus { border-color: var(--accent); }
-.check { flex-direction: row; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font-size: .85rem; color: var(--text); padding-bottom: 8px; }
-.check input { width: 16px; height: 16px; }
-.kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
-@media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+.kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 16px; }
+@media (max-width: 1200px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 640px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
 .kpi {
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 12px 14px; box-shadow: var(--shadow);
 }
 .kpi .lbl { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-.kpi .val { font-size: 1.35rem; font-weight: 650; margin-top: 4px; font-variant-numeric: tabular-nums; }
-.grid2 { display: grid; grid-template-columns: 1.4fr .9fr; gap: 12px; margin-bottom: 12px; }
-.grid2b { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-@media (max-width: 980px) { .grid2, .grid2b { grid-template-columns: 1fr; } }
+.kpi .val { font-size: 1.25rem; font-weight: 650; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.charts .span2 { grid-column: 1 / -1; }
+@media (max-width: 980px) { .charts { grid-template-columns: 1fr; } }
 .panel {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px 14px 16px; box-shadow: var(--shadow); min-height: 320px;
+  padding: 12px 14px 16px; box-shadow: var(--shadow);
 }
 .panel h2 { margin: 0 0 8px; font-size: .95rem; font-weight: 600; }
-.panel .ctrl { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.panel .ctrl label { font-size: .72rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
-.chart-box { position: relative; height: 340px; }
-.chart-box.sm { height: 300px; }
+.panel h2 .hint { color: var(--muted); font-weight: 500; font-size: .8rem; }
+.panel .note { color: var(--muted); font-size: .72rem; margin-top: 6px; min-height: 1em; }
+.chart-box { position: relative; height: 400px; }
+.chart-box.tall { height: 760px; }
+@media (max-width: 980px) { .chart-box.tall { height: 620px; } }
 .table-wrap {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-  overflow: auto; max-height: 520px; box-shadow: var(--shadow);
+  overflow: auto; max-height: 620px; box-shadow: var(--shadow);
 }
-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+th, td { padding: 7px 9px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
 th {
   position: sticky; top: 0; background: var(--panel2); cursor: pointer; user-select: none;
   color: var(--muted); font-weight: 600; z-index: 1;
@@ -74,13 +73,9 @@ th {
 th:hover { color: var(--text); }
 th.sorted { color: var(--accent2); }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
-tr.wyfi { background: var(--wyfi-bg); }
-tr.wyfi td:first-child { color: var(--wyfi); font-weight: 600; }
+td.deal { max-width: 340px; overflow: hidden; text-overflow: ellipsis; }
 tr:hover { background: rgba(91,140,255,.08); }
-.badge {
-  display: inline-block; font-size: .65rem; padding: 2px 6px; border-radius: 999px;
-  background: var(--wyfi); color: #1a1028; font-weight: 700; margin-left: 6px; vertical-align: middle;
-}
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .foot { color: var(--muted); font-size: .75rem; margin-top: 14px; }
 .empty { color: var(--muted); padding: 40px; text-align: center; }
 .err-banner {
@@ -89,107 +84,103 @@ tr:hover { background: rgba(91,140,255,.08); }
 }
 .err-banner.show { display: block; }
 .chart-fallback { color: var(--muted); font-size: .85rem; padding: 48px 16px; text-align: center; }
-
 </style></head><body>
 <header>
   <h1>Neocloud Comps KPI Visualizer</h1>
-  <div class="sub">Cloud Comps deal comps</div>
+  <div class="sub">GPU cloud contract comps</div>
   <div class="sub" id="meta"></div>
 </header>
 <div class="wrap">
   <div class="filters">
-    <label class="f">Search deals
-      <input id="q" type="search" placeholder="Name, platform…" />
+    <label class="f">Search
+      <input id="q" type="search" placeholder="Deal, customer…" />
     </label>
     <label class="f">Platform
       <select id="platform"><option value="">All platforms</option></select>
     </label>
-    <label class="f">Max $/GPU-hr clip
-      <input id="clip" type="number" min="0" step="0.5" value="20" />
+    <label class="f">Customer type
+      <select id="ttype"><option value="">All types</option></select>
     </label>
-    <label class="f check"><input id="wyfiOnly" type="checkbox" /> WYFI-only</label>
-    <label class="f check"><input id="requireArrTcv" type="checkbox" /> Require ARR &amp; TCV</label>
+    <label class="f">Min TCV ($mm)
+      <input id="minTcv" type="number" min="0" step="50" placeholder="0" />
+    </label>
+    <label class="f">Announce year
+      <select id="year"><option value="">All years</option></select>
+    </label>
+    <label class="f">Date axis
+      <select id="dateBasis">
+        <option value="announced" selected>Announced</option>
+        <option value="start">Start</option>
+      </select>
+    </label>
+    <label class="f">Color by
+      <select id="colorBy">
+        <option value="type" selected>Customer type</option>
+        <option value="platform">Platform</option>
+      </select>
+    </label>
   </div>
   <div class="err-banner" id="chartError" role="alert"></div>
   <div class="kpis" id="kpis"></div>
-  <div class="grid2">
+  <div class="charts">
     <div class="panel">
-      <h2>Bubble / scatter</h2>
-      <div class="ctrl">
-        <label>X<select id="xField"></select></label>
-        <label>Y<select id="yField"></select></label>
-        <label>Size<select id="sizeField"></select></label>
-      </div>
-      <div class="chart-box"><canvas id="bubbleChart"></canvas></div>
+      <h2>$/GPU-hr (Adj) <span class="hint">vs date · color = <span class="cby">customer type</span> · size = TCV</span></h2>
+      <div class="chart-box"><canvas id="gpuHrChart"></canvas></div>
+      <div class="note" id="gpuHrNote"></div>
     </div>
     <div class="panel">
-      <h2>$/GPU-hr vs announce date</h2>
-      <div class="chart-box"><canvas id="timeChart"></canvas></div>
-    </div>
-  </div>
-  <div class="grid2b">
-    <div class="panel">
-      <h2>Top 12 deals by ARR ()</h2>
-      <div class="chart-box sm"><canvas id="barChart"></canvas></div>
+      <h2>ARR / MW / Yr <span class="hint">vs date · color = <span class="cby">customer type</span> · size = TCV</span></h2>
+      <div class="chart-box"><canvas id="arrChart"></canvas></div>
+      <div class="note" id="arrNote"></div>
     </div>
     <div class="panel">
-      <h2>ARR / MW distribution</h2>
-      <div class="chart-box sm"><canvas id="histChart"></canvas></div>
+      <h2>NOI $/MW/Yr <span class="hint">vs date · color = <span class="cby">customer type</span> · size = TCV</span></h2>
+      <div class="chart-box"><canvas id="noiChart"></canvas></div>
+      <div class="note" id="noiNote"></div>
+    </div>
+    <div class="panel">
+      <h2>NPV / MW <span class="hint">vs date · color = <span class="cby">customer type</span> · size = TCV</span></h2>
+      <div class="chart-box"><canvas id="npvChart"></canvas></div>
+      <div class="note" id="npvNote"></div>
+    </div>
+    <div class="panel">
+      <h2>XIRR <span class="hint">vs date · color = <span class="cby">customer type</span> · size = TCV</span></h2>
+      <div class="chart-box"><canvas id="xirrChart"></canvas></div>
+      <div class="note" id="xirrNote"></div>
+    </div>
+    <div class="panel">
+      <h2>Cumulative contracted IT MW <span class="hint">vs date</span></h2>
+      <div class="chart-box"><canvas id="mwChart"></canvas></div>
+      <div class="note" id="mwNote"></div>
+    </div>
+    <div class="panel span2">
+      <h2>TCV by deal <span class="hint">color = <span class="cby">customer type</span></span></h2>
+      <div class="chart-box tall"><canvas id="barChart"></canvas></div>
     </div>
   </div>
   <h2 style="font-size:.95rem;margin:8px 0;">Deals <span id="tableCount" style="color:var(--muted);font-weight:500"></span></h2>
   <div class="table-wrap">
     <table id="dealTable"><thead></thead><tbody></tbody></table>
   </div>
-  <p class="foot">Data compiled from public filings and press releases. Outliers (e.g. extreme $/GPU-hr) are clip-filtered via Max $/GPU-hr; table shows filtered deals. Purple rows = WYFI / WhiteFiber / Enovum / Nscale. &copy; @riskonbobby</p>
+  <p class="foot">Data compiled from public filings and press releases. $/GPU-hr (Adj) normalizes rack-scale (GB/VR) pricing per GPU. Customer type is inferred from the deal name; "Undisclosed" where the counterparty is not named. Deals without a date on the selected axis are omitted from the time-series charts. XIRR values above 300% or effectively 0% (solver artifacts) are left off the XIRR chart but kept in the table. &copy; @riskonbobby</p>
 </div>
 
 <script>
 /*__DATA_START__*/
-const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","platform":"GB300","gpuCount":76000,"termYrs":5,"start":"2026-06-30","end":"2031-06-30","tcvMm":9720.096,"arrMm":1944.0192,"gpuHr":2.92,"gpuHrAdj":2.92,"kwPerGpu":2.6315789473684212,"itMw":200,"arrPerMw":9.720096,"costPerGpuK":76315.78947368421,"capexMm":5800,"tcvCapex":1.675878620689655,"prepayPct":0.2,"prepayMm":1944.0192,"noiMargin":0.43406067077332416,"noiPerMw":4.219111389741105,"npv10":2379.9471089465505,"npvPerMw":11.899735544732753,"xirr":0.28517150282859804,"gpuPayback":3.296918976920112,"pps":5.213642580194545,"pctPrice":0.11326618683889952,"arrMultiple":1.2242405367943643,"noiMarginPct":43.406067077332416,"xirrPct":28.517150282859806,"isWyfi":false},{"col":"BN","deal":"HIVE Bell Manitoba","announced":"2026-02-13","platform":"B200","gpuCount":504,"termYrs":2.0027397260273974,"start":"2026-05-31","end":"2028-05-31","tcvMm":30,"arrMm":14.979480164158685,"gpuHr":3.3974777125462055,"gpuHrAdj":3.3974777125462055,"kwPerGpu":1.5,"itMw":0.756,"arrPerMw":19.814127201268104,"costPerGpuK":65000,"capexMm":32.76,"tcvCapex":0.9157509157509158,"prepayPct":0,"prepayMm":0,"noiMargin":0.92350976,"noiPerMw":18.323606349206347,"npv10":9.15174352269861,"npvPerMw":12.105480850130435,"xirr":0.2533090531826019,"gpuPayback":2.3648910868034574,"pps":0.041579934223982776,"pctPrice":0.01329749407527672,"arrMultiple":0.6109520105107474,"noiMarginPct":92.350976,"xirrPct":25.33090531826019,"isWyfi":false},{"col":"R","deal":"SHAZ ESDS","announced":"2026-04-01","platform":"B300","gpuCount":8208,"termYrs":5,"start":"2026-06-30","end":"2031-06-30","tcvMm":1265.476608,"arrMm":253.09532159999998,"gpuHr":3.52,"gpuHrAdj":3.52,"kwPerGpu":1.827485380116959,"itMw":15,"arrPerMw":16.87302144,"costPerGpuK":60000,"capexMm":492.48,"tcvCapex":2.5696,"prepayPct":0.1106302551267704,"prepayMm":140,"noiMargin":0.4455620265968655,"noiPerMw":7.517977627618762,"npv10":336.119558377455,"npvPerMw":22.407970558497002,"xirr":null,"gpuPayback":2.4495331471541713,"pps":7.534958243757439,"pctPrice":0.13020491176356383,"arrMultiple":1.32803544629983,"noiMarginPct":44.55620265968655,"xirrPct":null,"isWyfi":false},{"col":"BV","deal":"DigiPower SubQ AI","announced":"2026-04-20","platform":"B200","gpuCount":325,"termYrs":2,"start":"2026-05-15","end":"2028-05-14","tcvMm":19.6,"arrMm":9.8,"gpuHr":3.4422198805760447,"gpuHrAdj":3.4422198805760447,"kwPerGpu":1.5,"itMw":0.4875,"arrPerMw":20.102564102564106,"costPerGpuK":65000,"capexMm":21.125,"tcvCapex":0.9278106508875741,"prepayPct":0.15,"prepayMm":2.94,"noiMargin":0.9227079591836734,"noiPerMw":18.548795897435895,"npv10":8.917529709594449,"npvPerMw":18.292368635065536,"xirr":0.3511697709560394,"gpuPayback":2.3361803953713,"pps":0.09544257787574084,"pctPrice":0.02485483798847418,"arrMultiple":0.909952011183107,"noiMarginPct":92.27079591836734,"xirrPct":35.11697709560394,"isWyfi":false},{"col":"AX","deal":"SpaceX Anthropic Colossus 1","announced":"2026-05-01","platform":"H100, H200 GB200","gpuCount":220000,"termYrs":3.0027397260273974,"start":"2026-05-31","end":"2029-05-31","tcvMm":44040.182648401824,"arrMm":14666.666666666666,"gpuHr":7.610350076103501,"gpuHrAdj":7.610350076103501,"kwPerGpu":1.3636363636363635,"itMw":300,"arrPerMw":48.888888888888886,"costPerGpuK":50000,"capexMm":11000,"tcvCapex":4.00365296803653,"prepayPct":0,"prepayMm":0,"noiMargin":0.9374572727272728,"noiPerMw":45.83124444444445,"npv10":22519.518497416946,"npvPerMw":75.06506165805649,"xirr":0.7042716145515444,"gpuPayback":0.800036462267856,"pps":1.721675726102213,"pctPrice":0.011525476811502297,"arrMultiple":1.5354217157329737,"noiMarginPct":93.74572727272728,"xirrPct":70.42716145515445,"isWyfi":false},{"col":"AP","deal":"IREN NVDA","announced":"2026-05-07","platform":"GB300 Air","gpuCount":20000,"termYrs":5,"start":"2026-06-30","end":"2031-06-30","tcvMm":3400.0000000000005,"arrMm":680.0000000000001,"gpuHr":3.881278538812786,"gpuHrAdj":3.881278538812786,"kwPerGpu":2,"itMw":40,"arrPerMw":17.000000000000004,"costPerGpuK":80000,"capexMm":1600,"tcvCapex":2.1250000000000004,"prepayPct":0,"prepayMm":0,"noiMargin":0.3656555283972009,"noiPerMw":6.216143982752415,"npv10":1437.5866309645728,"npvPerMw":35.93966577411432,"xirr":1.331869947910309,"gpuPayback":2.545824847250509,"pps":3.149256066969026,"pctPrice":0.06841746832433253,"arrMultiple":2.114097986712607,"noiMarginPct":36.56555283972009,"xirrPct":133.1869947910309,"isWyfi":false},{"col":"B","deal":"WYFI Hyperbolic","announced":"2026-05-21","platform":"H200","gpuCount":400,"termYrs":2.0027397260273974,"start":"2026-06-30","end":"2028-06-30","tcvMm":17,"arrMm":8.488372093023255,"gpuHr":2.422480620155039,"gpuHrAdj":2.422480620155039,"kwPerGpu":1,"itMw":0.4,"arrPerMw":21.220930232558135,"costPerGpuK":20000,"capexMm":8,"tcvCapex":2.125,"prepayPct":0,"prepayMm":0,"noiMargin":0.8380350684931507,"noiPerMw":17.783883720930234,"npv10":7.648430530568217,"npvPerMw":19.121076326420543,"xirr":0.7034517884254454,"gpuPayback":1.1246137409491477,"pps":0.19490118305769588,"pctPrice":0.009808865825076918,"arrMultiple":0.9010479803135161,"noiMarginPct":83.80350684931507,"xirrPct":70.34517884254454,"isWyfi":true},{"col":"J","deal":"WYFI France Enterprise Customer","announced":"2026-05-21","platform":"B300","gpuCount":1300,"termYrs":5,"start":"2026-07-31","end":"2031-07-31","tcvMm":160,"arrMm":32,"gpuHr":2.809975412715139,"gpuHrAdj":2.809975412715139,"kwPerGpu":1.75,"itMw":2.275,"arrPerMw":14.065934065934066,"costPerGpuK":60000,"capexMm":78,"tcvCapex":2.051282051282051,"prepayPct":0.2,"prepayMm":32,"noiMargin":0.4080085306815895,"noiPerMw":5.739021090905874,"npv10":28.6217030139662,"npvPerMw":12.580968357787341,"xirr":2.9802322387695314e-09,"gpuPayback":3.1933382052211083,"pps":0.7293527418799215,"pctPrice":0.03670641230604691,"arrMultiple":0.8944282191864438,"noiMarginPct":40.80085306815895,"xirrPct":2.980232238769531e-07,"isWyfi":true},{"col":"Z","deal":"BRUN Thinking Machines","announced":"2026-05-28","platform":"B300","gpuCount":5000,"termYrs":3,"start":"2026-05-21","end":"2029-05-31","tcvMm":471.726,"arrMm":157.242,"gpuHr":3.59,"gpuHrAdj":3.59,"kwPerGpu":1.75,"itMw":8.75,"arrPerMw":17.970514285714284,"costPerGpuK":65000,"capexMm":325,"tcvCapex":1.4514646153846154,"prepayPct":0,"prepayMm":0,"noiMargin":0.29878500824066156,"noiPerMw":5.369320258946069,"npv10":116.82524868188386,"npvPerMw":13.351456992215299,"xirr":null,"gpuPayback":2.531548941851489,"pps":1.469732164127461,"pctPrice":0.07992018293243398,"arrMultiple":0.7429646575462273,"noiMarginPct":29.87850082406616,"xirrPct":null,"isWyfi":false},{"col":"BF","deal":"SpaceX Google Colossus 2","announced":"2026-06-05","platform":"GB200","gpuCount":110000,"termYrs":2.665753424657534,"start":"2026-10-31","end":"2029-06-30","tcvMm":29429.917808219172,"arrMm":11039.999999999998,"gpuHr":11.457036114570359,"gpuHrAdj":5.7285180572851795,"kwPerGpu":1.75,"itMw":192.5,"arrPerMw":57.35064935064934,"costPerGpuK":70000,"capexMm":7700,"tcvCapex":3.8220672478206716,"prepayPct":0,"prepayMm":0,"noiMargin":0.9877804347826087,"noiPerMw":56.64984935064934,"npv10":19034.730228916007,"npvPerMw":98.88171547488835,"xirr":0.8474900126457214,"gpuPayback":0.7060919041886473,"pps":1.455254604657187,"pctPrice":0.009741964149532649,"arrMultiple":1.7241603468221023,"noiMarginPct":98.77804347826087,"xirrPct":84.74900126457214,"isWyfi":false},{"col":"CD","deal":"SpaceX Reflection Colossus 2","announced":"2026-06-22","platform":"GB300","gpuCount":35000,"termYrs":3.506849315068493,"start":"2026-06-30","end":"2029-12-31","tcvMm":6312.3287671232865,"arrMm":1799.9999999999998,"gpuHr":10.294078224271503,"gpuHrAdj":5.147039112135752,"kwPerGpu":2.75,"itMw":96.25,"arrPerMw":18.7012987012987,"costPerGpuK":80000,"capexMm":2800,"tcvCapex":2.2544031311154593,"prepayPct":0,"prepayMm":0,"noiMargin":0.9286284895833333,"noiPerMw":30.450952357231806,"npv10":4218.5814228462905,"npvPerMw":43.8294173802212,"xirr":0.5083102047443391,"gpuPayback":0.9553365934054369,"pps":0.3225215155081262,"pctPrice":0.0021590675827294565,"arrMultiple":2.343656346025717,"noiMarginPct":92.86284895833333,"xirrPct":50.831020474433906,"isWyfi":false},{"col":"CL","deal":"NBIS Reflection","announced":"2026-07-14","platform":"GB300","gpuCount":5000,"termYrs":3.0027397260273974,"start":"2026-07-31","end":"2029-07-31","tcvMm":1000,"arrMm":333.02919708029196,"gpuHr":11.415525114155251,"gpuHrAdj":5.707762557077626,"kwPerGpu":2.75,"itMw":13.75,"arrPerMw":24.22030524220305,"costPerGpuK":80000,"capexMm":400,"tcvCapex":2.5,"prepayPct":0,"prepayMm":0,"noiMargin":0.92591,"noiPerMw":33.66945454545454,"npv10":712.6849612261676,"npvPerMw":51.83163354372128,"xirr":0.580252653360367,"gpuPayback":0.8640148610556103,"pps":2.8507398449046706,"pctPrice":0.011663283875724862,"arrMultiple":2.1400074452161086,"noiMarginPct":92.59100000000001,"xirrPct":58.0252653360367,"isWyfi":false},{"col":"CT","deal":"SHAZ \"global AI Lab\"","announced":"2026-07-16","platform":"B300","gpuCount":7500,"termYrs":5.005479452054795,"start":"2027-03-31","end":"2032-03-31","tcvMm":1320,"arrMm":263.71100164203614,"gpuHr":3,"gpuHrAdj":3,"kwPerGpu":1.75,"itMw":13.125,"arrPerMw":20.092266791774183,"costPerGpuK":60000,"capexMm":450,"tcvCapex":2.933333333333333,"prepayPct":0,"prepayMm":0,"noiMargin":0.2031549743527325,"noiPerMw":3.0508072719941777,"npv10":151.81517317499296,"npvPerMw":11.566870337142321,"xirr":null,"gpuPayback":2.946043218454014,"pps":3.403315761107177,"pctPrice":0.05880967273383752,"arrMultiple":0.5756876741193693,"noiMarginPct":20.31549743527325,"xirrPct":null,"isWyfi":false},{"col":"DB","deal":"Meta Anthropic","announced":"2026-07-17","platform":"GB300","gpuCount":75000,"termYrs":2.0027397260273974,"start":"2026-09-30","end":"2028-09-30","tcvMm":10000,"arrMm":4993.160054719562,"gpuHr":7.610350076103501,"gpuHrAdj":3.8051750380517504,"kwPerGpu":2.75,"itMw":206.25,"arrPerMw":24.209260871367572,"costPerGpuK":80000,"capexMm":6000,"tcvCapex":1.6666666666666667,"prepayPct":0,"prepayMm":0,"noiMargin":0.921092,"noiPerMw":22.32950303030303,"npv10":4874.908598707221,"npvPerMw":23.635920478580466,"xirr":0.3237106740474701,"gpuPayback":1.3028014574005637,"pps":1.926841343362538,"pctPrice":0.002967932816861061,"arrMultiple":0.9763173111383504,"noiMarginPct":92.1092,"xirrPct":32.37106740474701,"isWyfi":false},{"col":"DJ","deal":"WYFI Baseten Ontario","announced":"2026-08-12","platform":"B300","gpuCount":1392,"termYrs":3,"start":"2026-11-30","end":"2029-11-30","tcvMm":165,"arrMm":55,"gpuHr":4.51044454941479,"gpuHrAdj":4.51044454941479,"kwPerGpu":1.75,"itMw":2.436,"arrPerMw":22.57799671592775,"costPerGpuK":60000,"capexMm":83.52,"tcvCapex":1.9755747126436782,"prepayPct":0.2,"prepayMm":33,"noiMargin":0.48047678227193574,"noiPerMw":10.848203212215298,"npv10":39.67612803849799,"npvPerMw":16.287408882798847,"xirr":null,"gpuPayback":1.8214704256186678,"pps":1.0110472028144815,"pctPrice":0.050883356373936525,"arrMultiple":0.721384146154509,"noiMarginPct":48.04767822719357,"xirrPct":null,"isWyfi":true},{"col":"DR","deal":"WYFI Prime Intellect","announced":"2026-08-12","platform":"VR200","gpuCount":576,"termYrs":3,"start":"2027-06-30","end":"2030-06-30","tcvMm":108,"arrMm":36,"gpuHr":7.134703196347032,"gpuHrAdj":3.567351598173516,"kwPerGpu":2.92,"itMw":1.68192,"arrPerMw":21.404109589041095,"costPerGpuK":130208.33333333333,"capexMm":75,"tcvCapex":1.44,"prepayPct":0.2,"prepayMm":21.6,"noiMargin":0.2334436702175791,"noiPerMw":4.996653900205032,"npv10":3.864974568285194,"npvPerMw":2.297953867178697,"xirr":2.9802322387695314e-09,"gpuPayback":2.591722665790235,"pps":0.09848924074501968,"pctPrice":0.00495670540591647,"arrMultiple":0.10736040467458872,"noiMarginPct":23.34436702175791,"xirrPct":2.980232238769531e-07,"isWyfi":true},{"col":"DZ","deal":"WYFI Iceland","announced":"2026-08-12","platform":"B300","gpuCount":576,"termYrs":5,"start":"2026-12-31","end":"2031-12-31","tcvMm":87.5,"arrMm":17.5,"gpuHr":3.4682584982242517,"gpuHrAdj":3.4682584982242517,"kwPerGpu":1.75,"itMw":1.008,"arrPerMw":17.36111111111111,"costPerGpuK":60000,"capexMm":34.56,"tcvCapex":2.5318287037037037,"prepayPct":0,"prepayMm":0,"noiMargin":0.3106273916166254,"noiPerMw":5.3928366600108575,"npv10":20.600549866379303,"npvPerMw":20.437053438868357,"xirr":null,"gpuPayback":2.4724581327561213,"pps":0.5249536521969426,"pctPrice":0.026419541728792923,"arrMultiple":1.1771742780788172,"noiMarginPct":31.062739161662538,"xirrPct":null,"isWyfi":true},{"col":"EH","deal":"HIVE Bell & Cohere","announced":"2026-06-18","platform":"GB200","gpuCount":2304,"termYrs":3,"start":"2026-09-30","end":"2029-09-30","tcvMm":220,"arrMm":73.33333333333333,"gpuHr":3.633413664806359,"gpuHrAdj":1.8167068324031794,"kwPerGpu":2,"itMw":4.608,"arrPerMw":15.914351851851851,"costPerGpuK":70000,"capexMm":161.28,"tcvCapex":1.3640873015873016,"prepayPct":0,"prepayMm":0,"noiMargin":0.7849917090909091,"noiPerMw":12.49263425925926,"npv10":-18.15458343836498,"npvPerMw":-3.9397967531174007,"xirr":0.0349316269159317,"gpuPayback":2.801650898733291,"pps":-0.0824833413828486,"pctPrice":-0.026378631034842368,"arrMultiple":-0.24756250143224975,"noiMarginPct":78.4991709090909,"xirrPct":3.4931626915931697,"isWyfi":false},{"col":"EP","deal":"SHAZ \"Global AI Platform\"","announced":"2026-08-13","platform":"B300","gpuCount":2048,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":373,"arrMm":74.6,"gpuHr":4.158194206621005,"gpuHrAdj":4.158194206621005,"kwPerGpu":1.75,"itMw":3.584,"arrPerMw":20.814732142857142,"costPerGpuK":60000,"capexMm":122.88,"tcvCapex":3.0354817708333335,"prepayPct":0,"prepayMm":0,"noiMargin":0.823724053619303,"noiPerMw":17.14559553571429,"npv10":110.01180615123742,"npvPerMw":30.695258412733654,"xirr":0.4099411666393281,"gpuPayback":1.9996805718586512,"pps":2.4661890241419284,"pctPrice":0.04261601907969464,"arrMultiple":1.4746890904991612,"noiMarginPct":82.3724053619303,"xirrPct":40.994116663932815,"isWyfi":false},{"col":"EX","deal":"NBIS midterm (1-3 years) - Reflection, Cohere, Jane, Frontier Lab","announced":"2026-08-12","platform":"B300","gpuCount":12500,"termYrs":2,"start":"2026-11-30","end":"2028-11-30","tcvMm":1000,"arrMm":500,"gpuHr":4.566210045662101,"gpuHrAdj":4.566210045662101,"kwPerGpu":1.75,"itMw":21.875,"arrPerMw":22.857142857142858,"costPerGpuK":55000,"capexMm":687.5,"tcvCapex":1.4545454545454546,"prepayPct":0.55,"prepayMm":550,"noiMargin":0.6851173543689321,"noiPerMw":15.659825242718448,"npv10":117.19264208303707,"npvPerMw":5.357377923795981,"xirr":null,"gpuPayback":1.6464847550479724,"pps":0.39064214027679023,"pctPrice":0.0015982413070812138,"arrMultiple":0.23438528416607415,"noiMarginPct":68.5117354368932,"xirrPct":null,"isWyfi":false},{"col":"FF","deal":"BTDR A102 Malaysia","announced":"2026-08-19","platform":"GB300","gpuCount":1800,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":400,"arrMm":80,"gpuHr":5.073566717402334,"gpuHrAdj":2.536783358701167,"kwPerGpu":2.75,"itMw":4.95,"arrPerMw":16.161616161616163,"costPerGpuK":85000,"capexMm":153,"tcvCapex":2.6143790849673203,"prepayPct":0.5,"prepayMm":200,"noiMargin":0.8647115,"noiPerMw":13.975135353535352,"npv10":200.27315170615782,"npvPerMw":40.45922256690057,"xirr":27.416698265075688,"gpuPayback":2.2117203252182955,"pps":0.7230754721552397,"pctPrice":0.058242083943233165,"arrMultiple":2.503414396326973,"noiMarginPct":86.47115,"xirrPct":2741.669826507569,"isWyfi":false},{"col":"FN","deal":"Nscale Anthropic WV 460 MW","announced":"2026-08-12","platform":"VR200","gpuCount":145000,"termYrs":6,"start":"2027-12-31","end":"2033-12-31","tcvMm":45000,"arrMm":7500,"gpuHr":5.904581955597544,"gpuHrAdj":2.952290977798772,"kwPerGpu":3.2,"itMw":464,"arrPerMw":16.163793103448278,"costPerGpuK":115000,"capexMm":16675,"tcvCapex":2.6986506746626686,"prepayPct":0.2,"prepayMm":9000,"noiMargin":0.6939434853293341,"noiPerMw":11.21675892234915,"npv10":15569.344311458792,"npvPerMw":33.554621360902566,"xirr":0.5863775074481965,"gpuPayback":2.437973965531753,"pps":null,"pctPrice":null,"arrMultiple":2.075912574861172,"noiMarginPct":69.39434853293342,"xirrPct":58.63775074481965,"isWyfi":true},{"col":"FW","deal":"IREN 3-5 year deals - Cohere, Prometheus, Perplexity, Figure AI, Fal AI, Higgsfield AI, \"Frontier Lab\"","announced":"2026-08-27","platform":"B300","gpuCount":75000,"termYrs":3,"start":"2026-11-30","end":"2029-11-30","tcvMm":9000,"arrMm":3000,"gpuHr":4.566210045662101,"gpuHrAdj":4.566210045662101,"kwPerGpu":1.75,"itMw":131.25,"arrPerMw":22.857142857142858,"costPerGpuK":60000,"capexMm":4500,"tcvCapex":2,"prepayPct":0.5,"prepayMm":2250,"noiMargin":0.3975135776059304,"noiPerMw":9.086024630992695,"npv10":3649.719555692206,"npvPerMw":27.807387090988236,"xirr":null,"gpuPayback":1.6114520525870522,"pps":7.995275697428511,"pctPrice":0.17369706055677842,"arrMultiple":1.2165731852307353,"noiMarginPct":39.751357760593045,"xirrPct":null,"isWyfi":false},{"col":"GE","deal":"IREN 2027 Cloud Deal Estimate @ $25mm/mw/y","announced":"2026-08-27","platform":"GB300","gpuCount":181818.18181818182,"termYrs":4,"start":"2027-06-30","end":"2031-06-30","tcvMm":50000,"arrMm":12500,"gpuHr":7.848173515981735,"gpuHrAdj":3.9240867579908674,"kwPerGpu":2.75,"itMw":500,"arrPerMw":25,"costPerGpuK":90000,"capexMm":16363.636363636364,"tcvCapex":3.0555555555555554,"prepayPct":0.5,"prepayMm":8181.818181818182,"noiMargin":0.543764194481761,"noiPerMw":13.594104862044027,"npv10":24756.191512807978,"npvPerMw":49.512383025615954,"xirr":null,"gpuPayback":1.442632515814859,"pps":54.23226999853683,"pctPrice":1.1781940038787058,"arrMultiple":1.9804953210246383,"noiMarginPct":54.37641944817611,"xirrPct":null,"isWyfi":false},{"col":"GM","deal":"Nscale Hyperscaler NC-1","announced":"2025-12-05","platform":"GB300","gpuCount":14400,"termYrs":5,"start":"2027-08-31","end":"2032-08-31","tcvMm":3000,"arrMm":600,"gpuHr":4.756468797564688,"gpuHrAdj":2.378234398782344,"kwPerGpu":2.75,"itMw":39.6,"arrPerMw":15.15151515151515,"costPerGpuK":85000,"capexMm":1224,"tcvCapex":2.450980392156863,"prepayPct":0.25,"prepayMm":750,"noiMargin":0.32529628480502654,"noiPerMw":4.928731587954947,"npv10":1052.9553800849615,"npvPerMw":26.589782325377815,"xirr":-0.43511075358837853,"gpuPayback":2.5292432593435454,"pps":null,"pctPrice":null,"arrMultiple":1.7549256334749357,"noiMarginPct":32.52962848050265,"xirrPct":-43.51107535883785,"isWyfi":true},{"col":"GU","deal":"Nscale Hyperscaler NC-1 Phase 2","announced":"TBD","platform":"GB300","gpuCount":12600,"termYrs":5,"start":"2027-08-31","end":"2032-08-31","tcvMm":4000,"arrMm":800,"gpuHr":7.247952453431906,"gpuHrAdj":3.623976226715953,"kwPerGpu":2.75,"itMw":34.65,"arrPerMw":23.08802308802309,"costPerGpuK":85000,"capexMm":1071,"tcvCapex":3.734827264239029,"prepayPct":0.5,"prepayMm":2000,"noiMargin":0.4997856580031417,"noiPerMw":11.539062811039347,"npv10":2207.350628193529,"npvPerMw":63.70420283386808,"xirr":-0.25787132903933535,"gpuPayback":1.6722275806368745,"pps":null,"pctPrice":null,"arrMultiple":2.759188285241911,"noiMarginPct":49.978565800314165,"xirrPct":-25.787132903933536,"isWyfi":true},{"col":"HC","deal":"Lambda Anthropic NVDA HUT","announced":"2026-08-12","platform":"VR200","gpuCount":110000,"termYrs":6,"start":"2027-12-31","end":"2033-12-31","tcvMm":35000,"arrMm":5833.333333333333,"gpuHr":6.053687560536876,"gpuHrAdj":3.026843780268438,"kwPerGpu":3.2,"itMw":352,"arrPerMw":16.571969696969695,"costPerGpuK":115000,"capexMm":12650,"tcvCapex":2.766798418972332,"prepayPct":0.25,"prepayMm":8750,"noiMargin":0.7086811899328296,"noiPerMw":11.744243204379279,"npv10":12816.468684480078,"npvPerMw":36.41042239909113,"xirr":2.9802322387695314e-09,"gpuPayback":2.5479124956295944,"pps":null,"pctPrice":null,"arrMultiple":2.1971089173394422,"noiMarginPct":70.86811899328296,"xirrPct":2.980232238769531e-07,"isWyfi":false},{"col":"HL","deal":"Nscale MSFT NVDA Guarantor","announced":"2025-10-14","platform":"GB300","gpuCount":60000,"termYrs":6,"start":"2027-12-31","end":"2033-12-31","tcvMm":12500,"arrMm":2083.3333333333335,"gpuHr":3.9637239979705736,"gpuHrAdj":1.9818619989852868,"kwPerGpu":2.75,"itMw":165,"arrPerMw":12.626262626262626,"costPerGpuK":85000,"capexMm":5100,"tcvCapex":2.450980392156863,"prepayPct":0.25,"prepayMm":3125,"noiMargin":0.6466884199002215,"noiPerMw":8.165257827023,"npv10":2200.098700612159,"npvPerMw":13.33393151886157,"xirr":0.6243252456188202,"gpuPayback":2.884564477931107,"pps":null,"pctPrice":null,"arrMultiple":1.0560473762938363,"noiMarginPct":64.66884199002216,"xirrPct":62.43252456188202,"isWyfi":true},{"col":"HU","deal":"BTDR A102 Malaysia Part 2","announced":"2026-08-31","platform":"GB300","gpuCount":1800,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":400,"arrMm":80,"gpuHr":5.073566717402334,"gpuHrAdj":2.536783358701167,"kwPerGpu":2.75,"itMw":4.95,"arrPerMw":16.161616161616163,"costPerGpuK":85000,"capexMm":153,"tcvCapex":2.6143790849673203,"prepayPct":0.5,"prepayMm":200,"noiMargin":0.8647115,"noiPerMw":13.975135353535352,"npv10":200.27315170615782,"npvPerMw":40.45922256690057,"xirr":27.416698265075688,"gpuPayback":2.2117203252182955,"pps":0.7230754721552397,"pctPrice":0.058242083943233165,"arrMultiple":2.503414396326973,"noiMarginPct":86.47115,"xirrPct":2741.669826507569,"isWyfi":false},{"col":"IC","deal":"Crusoe Jane Street","announced":"2026-09-03","platform":"GB300","gpuCount":50000,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":13000,"arrMm":2600,"gpuHr":5.936073059360731,"gpuHrAdj":2.9680365296803655,"kwPerGpu":2.75,"itMw":137.5,"arrPerMw":18.90909090909091,"costPerGpuK":85000,"capexMm":4250,"tcvCapex":3.0588235294117645,"prepayPct":0.25,"prepayMm":3250,"noiMargin":0.8771038461538463,"noiPerMw":16.585236363636366,"npv10":6120.213172502588,"npvPerMw":44.51064125456428,"xirr":0.8957999110221864,"gpuPayback":1.8636509140659598,"pps":null,"pctPrice":null,"arrMultiple":2.353928143270226,"noiMarginPct":87.71038461538463,"xirrPct":89.57999110221864,"isWyfi":false}],"n":30};
+const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","platform":"GB300","gpuCount":76000,"termYrs":5,"start":"2026-06-30","end":"2031-06-30","tcvMm":9720.096,"arrMm":1944.0192,"gpuHr":2.92,"gpuHrAdj":2.92,"kwPerGpu":2.6315789473684212,"itMw":200,"arrPerMw":9.720096,"costPerGpuK":76315.78947368421,"capexMm":5800,"tcvCapex":1.675878620689655,"prepayPct":0.2,"prepayMm":1944.0192,"noiMargin":0.43406067077332416,"noiPerMw":4.219111389741105,"npv10":2379.9471089465505,"npvPerMw":11.899735544732753,"xirr":0.28517150282859804,"gpuPayback":3.296918976920112,"pps":5.350523941935801,"pctPrice":0.1388123995832352,"arrMultiple":1.2242405367943643,"noiMarginPct":43.406067077332416,"xirrPct":28.517150282859806,"tenantType":"Hyperscaler / IG"},{"col":"BN","deal":"HIVE Bell Manitoba","announced":"2026-02-13","platform":"B200","gpuCount":504,"termYrs":2.0027397260273974,"start":"2026-05-31","end":"2028-05-31","tcvMm":30,"arrMm":14.979480164158685,"gpuHr":3.3974777125462055,"gpuHrAdj":3.3974777125462055,"kwPerGpu":1.5,"itMw":0.756,"arrPerMw":19.814127201268104,"costPerGpuK":65000,"capexMm":32.76,"tcvCapex":0.9157509157509158,"prepayPct":0,"prepayMm":0,"noiMargin":0.92350976,"noiPerMw":18.323606349206347,"npv10":9.15174352269861,"npvPerMw":12.105480850130435,"xirr":0.2533090531826019,"gpuPayback":2.3648910868034574,"pps":0.041579934223982776,"pctPrice":0.015175158475906121,"arrMultiple":0.6109520105107474,"noiMarginPct":92.350976,"xirrPct":25.33090531826019,"tenantType":"Neocloud / Enterprise"},{"col":"R","deal":"SHAZ ESDS","announced":"2026-04-01","platform":"B300","gpuCount":8208,"termYrs":5,"start":"2026-06-30","end":"2031-06-30","tcvMm":1265.476608,"arrMm":253.09532159999998,"gpuHr":3.52,"gpuHrAdj":3.52,"kwPerGpu":1.827485380116959,"itMw":15,"arrPerMw":16.87302144,"costPerGpuK":60000,"capexMm":492.48,"tcvCapex":2.5696,"prepayPct":0.1106302551267704,"prepayMm":140,"noiMargin":0.4455620265968655,"noiPerMw":7.517977627618762,"npv10":336.119558377455,"npvPerMw":22.407970558497002,"xirr":null,"gpuPayback":2.4495331471541713,"pps":8.998551571228225,"pctPrice":0.20005672679475822,"arrMultiple":1.32803544629983,"noiMarginPct":44.55620265968655,"xirrPct":null,"tenantType":"Neocloud / Enterprise"},{"col":"BV","deal":"DigiPower SubQ AI","announced":"2026-04-20","platform":"B200","gpuCount":325,"termYrs":2,"start":"2026-05-15","end":"2028-05-14","tcvMm":19.6,"arrMm":9.8,"gpuHr":3.4422198805760447,"gpuHrAdj":3.4422198805760447,"kwPerGpu":1.5,"itMw":0.4875,"arrPerMw":20.102564102564106,"costPerGpuK":65000,"capexMm":21.125,"tcvCapex":0.9278106508875741,"prepayPct":0.15,"prepayMm":2.94,"noiMargin":0.9227079591836734,"noiPerMw":18.548795897435895,"npv10":8.917529709594449,"npvPerMw":18.292368635065536,"xirr":0.3511697709560394,"gpuPayback":2.3361803953713,"pps":0.09544257787574084,"pctPrice":0.028618464130656926,"arrMultiple":0.909952011183107,"noiMarginPct":92.27079591836734,"xirrPct":35.11697709560394,"tenantType":"Neocloud / Enterprise"},{"col":"AX","deal":"SpaceX Anthropic Colossus 1","announced":"2026-05-01","platform":"H100, H200 GB200","gpuCount":220000,"termYrs":3.0027397260273974,"start":"2026-05-31","end":"2029-05-31","tcvMm":44040.182648401824,"arrMm":14666.666666666666,"gpuHr":7.610350076103501,"gpuHrAdj":7.610350076103501,"kwPerGpu":1.3636363636363635,"itMw":300,"arrPerMw":48.888888888888886,"costPerGpuK":50000,"capexMm":11000,"tcvCapex":4.00365296803653,"prepayPct":0,"prepayMm":0,"noiMargin":0.9374572727272728,"noiPerMw":45.83124444444445,"npv10":22519.518497416946,"npvPerMw":75.06506165805649,"xirr":0.7042716145515444,"gpuPayback":0.800036462267856,"pps":1.721675726102213,"pctPrice":0.010306349752183256,"arrMultiple":1.5354217157329737,"noiMarginPct":93.74572727272728,"xirrPct":70.42716145515445,"tenantType":"Frontier Lab"},{"col":"AP","deal":"IREN NVDA","announced":"2026-05-07","platform":"GB300 Air","gpuCount":20000,"termYrs":5,"start":"2026-06-30","end":"2031-06-30","tcvMm":3400.0000000000005,"arrMm":680.0000000000001,"gpuHr":3.881278538812786,"gpuHrAdj":3.881278538812786,"kwPerGpu":2,"itMw":40,"arrPerMw":17.000000000000004,"costPerGpuK":80000,"capexMm":1600,"tcvCapex":2.1250000000000004,"prepayPct":0,"prepayMm":0,"noiMargin":0.3656555283972009,"noiPerMw":6.216143982752415,"npv10":1437.5866309645728,"npvPerMw":35.93966577411432,"xirr":1.331869947910309,"gpuPayback":2.545824847250509,"pps":3.2319380790724623,"pctPrice":0.08384843894337689,"arrMultiple":2.114097986712607,"noiMarginPct":36.56555283972009,"xirrPct":133.1869947910309,"tenantType":"NVIDIA-backstopped"},{"col":"B","deal":"WYFI Hyperbolic","announced":"2026-05-21","platform":"H200","gpuCount":400,"termYrs":2.0027397260273974,"start":"2026-06-30","end":"2028-06-30","tcvMm":17,"arrMm":8.488372093023255,"gpuHr":2.422480620155039,"gpuHrAdj":2.422480620155039,"kwPerGpu":1,"itMw":0.4,"arrPerMw":21.220930232558135,"costPerGpuK":20000,"capexMm":8,"tcvCapex":2.125,"prepayPct":0,"prepayMm":0,"noiMargin":0.8380350684931507,"noiPerMw":17.783883720930234,"npv10":7.648430530568217,"npvPerMw":19.121076326420543,"xirr":0.7034517884254454,"gpuPayback":1.1246137409491477,"pps":0.19490118305769588,"pctPrice":0.011705776760221977,"arrMultiple":0.9010479803135161,"noiMarginPct":83.80350684931507,"xirrPct":70.34517884254454,"tenantType":"Neocloud / Enterprise"},{"col":"J","deal":"WYFI France Enterprise Customer","announced":"2026-05-21","platform":"B300","gpuCount":1300,"termYrs":5,"start":"2026-07-31","end":"2031-07-31","tcvMm":160,"arrMm":32,"gpuHr":2.809975412715139,"gpuHrAdj":2.809975412715139,"kwPerGpu":1.75,"itMw":2.275,"arrPerMw":14.065934065934066,"costPerGpuK":60000,"capexMm":78,"tcvCapex":2.051282051282051,"prepayPct":0.2,"prepayMm":32,"noiMargin":0.4080085306815895,"noiPerMw":5.739021090905874,"npv10":28.6217030139662,"npvPerMw":12.580968357787341,"xirr":2.9802322387695314e-09,"gpuPayback":3.1933382052211083,"pps":0.7293527418799215,"pctPrice":0.04380496948227757,"arrMultiple":0.8944282191864438,"noiMarginPct":40.80085306815895,"xirrPct":2.980232238769531e-07,"tenantType":"Neocloud / Enterprise"},{"col":"Z","deal":"BRUN Thinking Machines","announced":"2026-05-28","platform":"B300","gpuCount":5000,"termYrs":3,"start":"2026-05-21","end":"2029-05-31","tcvMm":471.726,"arrMm":157.242,"gpuHr":3.59,"gpuHrAdj":3.59,"kwPerGpu":1.75,"itMw":8.75,"arrPerMw":17.970514285714284,"costPerGpuK":65000,"capexMm":325,"tcvCapex":1.4514646153846154,"prepayPct":0,"prepayMm":0,"noiMargin":0.29878500824066156,"noiPerMw":5.369320258946069,"npv10":116.82524868188386,"npvPerMw":13.351456992215299,"xirr":null,"gpuPayback":2.531548941851489,"pps":1.469732164127461,"pctPrice":0.10328405932027132,"arrMultiple":0.7429646575462273,"noiMarginPct":29.87850082406616,"xirrPct":null,"tenantType":"Frontier Lab"},{"col":"BF","deal":"SpaceX Google Colossus 2","announced":"2026-06-05","platform":"GB200","gpuCount":110000,"termYrs":2.665753424657534,"start":"2026-10-31","end":"2029-06-30","tcvMm":29429.917808219172,"arrMm":11039.999999999998,"gpuHr":11.457036114570359,"gpuHrAdj":5.7285180572851795,"kwPerGpu":1.75,"itMw":192.5,"arrPerMw":57.35064935064934,"costPerGpuK":70000,"capexMm":7700,"tcvCapex":3.8220672478206716,"prepayPct":0,"prepayMm":0,"noiMargin":0.9877804347826087,"noiPerMw":56.64984935064934,"npv10":19034.730228916007,"npvPerMw":98.88171547488835,"xirr":0.8474900126457214,"gpuPayback":0.7060919041886473,"pps":1.455254604657187,"pctPrice":0.008711491198187291,"arrMultiple":1.7241603468221023,"noiMarginPct":98.77804347826087,"xirrPct":84.74900126457214,"tenantType":"Hyperscaler / IG"},{"col":"CD","deal":"SpaceX Reflection Colossus 2","announced":"2026-06-22","platform":"GB300","gpuCount":35000,"termYrs":3.506849315068493,"start":"2026-06-30","end":"2029-12-31","tcvMm":6312.3287671232865,"arrMm":1799.9999999999998,"gpuHr":10.294078224271503,"gpuHrAdj":5.147039112135752,"kwPerGpu":2.75,"itMw":96.25,"arrPerMw":18.7012987012987,"costPerGpuK":80000,"capexMm":2800,"tcvCapex":2.2544031311154593,"prepayPct":0,"prepayMm":0,"noiMargin":0.9286284895833333,"noiPerMw":30.450952357231806,"npv10":4218.5814228462905,"npvPerMw":43.8294173802212,"xirr":0.5083102047443391,"gpuPayback":0.9553365934054369,"pps":0.3225215155081262,"pctPrice":0.00193068850947696,"arrMultiple":2.343656346025717,"noiMarginPct":92.86284895833333,"xirrPct":50.831020474433906,"tenantType":"Frontier Lab"},{"col":"CL","deal":"NBIS Reflection","announced":"2026-07-14","platform":"GB300","gpuCount":5000,"termYrs":3.0027397260273974,"start":"2026-07-31","end":"2029-07-31","tcvMm":1000,"arrMm":333.02919708029196,"gpuHr":11.415525114155251,"gpuHrAdj":5.707762557077626,"kwPerGpu":2.75,"itMw":13.75,"arrPerMw":24.22030524220305,"costPerGpuK":80000,"capexMm":400,"tcvCapex":2.5,"prepayPct":0,"prepayMm":0,"noiMargin":0.92591,"noiPerMw":33.66945454545454,"npv10":712.6849612261676,"npvPerMw":51.83163354372128,"xirr":0.580252653360367,"gpuPayback":0.8640148610556103,"pps":2.8507398449046706,"pctPrice":0.01213752222465479,"arrMultiple":2.1400074452161086,"noiMarginPct":92.59100000000001,"xirrPct":58.0252653360367,"tenantType":"Frontier Lab"},{"col":"CT","deal":"SHAZ \"global AI Lab\"","announced":"2026-07-16","platform":"B300","gpuCount":7500,"termYrs":5.005479452054795,"start":"2027-03-31","end":"2032-03-31","tcvMm":1320,"arrMm":263.71100164203614,"gpuHr":3,"gpuHrAdj":3,"kwPerGpu":1.75,"itMw":13.125,"arrPerMw":20.092266791774183,"costPerGpuK":60000,"capexMm":450,"tcvCapex":2.933333333333333,"prepayPct":0,"prepayMm":0,"noiMargin":0.2031549743527325,"noiPerMw":3.0508072719941777,"npv10":151.81517317499296,"npvPerMw":11.566870337142321,"xirr":null,"gpuPayback":2.946043218454014,"pps":4.06437718681041,"pctPrice":0.09035965288595843,"arrMultiple":0.5756876741193693,"noiMarginPct":20.31549743527325,"xirrPct":null,"tenantType":"Frontier Lab"},{"col":"DB","deal":"Meta Anthropic","announced":"2026-07-17","platform":"GB300","gpuCount":75000,"termYrs":2.0027397260273974,"start":"2026-09-30","end":"2028-09-30","tcvMm":10000,"arrMm":4993.160054719562,"gpuHr":7.610350076103501,"gpuHrAdj":3.8051750380517504,"kwPerGpu":2.75,"itMw":206.25,"arrPerMw":24.209260871367572,"costPerGpuK":80000,"capexMm":6000,"tcvCapex":1.6666666666666667,"prepayPct":0,"prepayMm":0,"noiMargin":0.921092,"noiPerMw":22.32950303030303,"npv10":4874.908598707221,"npvPerMw":23.635920478580466,"xirr":0.3237106740474701,"gpuPayback":1.3028014574005637,"pps":1.926841343362538,"pctPrice":0.002663885062437839,"arrMultiple":0.9763173111383504,"noiMarginPct":92.1092,"xirrPct":32.37106740474701,"tenantType":"Frontier Lab"},{"col":"DJ","deal":"WYFI Baseten Ontario","announced":"2026-08-12","platform":"B300","gpuCount":1392,"termYrs":3,"start":"2026-11-30","end":"2029-11-30","tcvMm":165,"arrMm":55,"gpuHr":4.51044454941479,"gpuHrAdj":4.51044454941479,"kwPerGpu":1.75,"itMw":2.436,"arrPerMw":22.57799671592775,"costPerGpuK":60000,"capexMm":83.52,"tcvCapex":1.9755747126436782,"prepayPct":0.2,"prepayMm":33,"noiMargin":0.48047678227193574,"noiPerMw":10.848203212215298,"npv10":39.67612803849799,"npvPerMw":16.287408882798847,"xirr":null,"gpuPayback":1.8214704256186678,"pps":1.0110472028144815,"pctPrice":0.06072355572459349,"arrMultiple":0.721384146154509,"noiMarginPct":48.04767822719357,"xirrPct":null,"tenantType":"Neocloud / Enterprise"},{"col":"DR","deal":"WYFI Prime Intellect","announced":"2026-08-12","platform":"VR200","gpuCount":576,"termYrs":3,"start":"2027-06-30","end":"2030-06-30","tcvMm":108,"arrMm":36,"gpuHr":7.134703196347032,"gpuHrAdj":3.567351598173516,"kwPerGpu":2.92,"itMw":1.68192,"arrPerMw":21.404109589041095,"costPerGpuK":130208.33333333333,"capexMm":75,"tcvCapex":1.44,"prepayPct":0.2,"prepayMm":21.6,"noiMargin":0.2334436702175791,"noiPerMw":4.996653900205032,"npv10":3.864974568285194,"npvPerMw":2.297953867178697,"xirr":2.9802322387695314e-09,"gpuPayback":2.591722665790235,"pps":0.09848924074501968,"pctPrice":0.005915269714415597,"arrMultiple":0.10736040467458872,"noiMarginPct":23.34436702175791,"xirrPct":2.980232238769531e-07,"tenantType":"Neocloud / Enterprise"},{"col":"DZ","deal":"WYFI Iceland","announced":"2026-08-12","platform":"B300","gpuCount":576,"termYrs":5,"start":"2026-12-31","end":"2031-12-31","tcvMm":87.5,"arrMm":17.5,"gpuHr":3.4682584982242517,"gpuHrAdj":3.4682584982242517,"kwPerGpu":1.75,"itMw":1.008,"arrPerMw":17.36111111111111,"costPerGpuK":60000,"capexMm":34.56,"tcvCapex":2.5318287037037037,"prepayPct":0,"prepayMm":0,"noiMargin":0.3106273916166254,"noiPerMw":5.3928366600108575,"npv10":20.600549866379303,"npvPerMw":20.437053438868357,"xirr":null,"gpuPayback":2.4724581327561213,"pps":0.5249536521969426,"pctPrice":0.031528747879696256,"arrMultiple":1.1771742780788172,"noiMarginPct":31.062739161662538,"xirrPct":null,"tenantType":"Undisclosed"},{"col":"EH","deal":"HIVE Bell & Cohere","announced":"2026-06-18","platform":"GB200","gpuCount":2304,"termYrs":3,"start":"2026-09-30","end":"2029-09-30","tcvMm":220,"arrMm":73.33333333333333,"gpuHr":3.633413664806359,"gpuHrAdj":1.8167068324031794,"kwPerGpu":2,"itMw":4.608,"arrPerMw":15.914351851851851,"costPerGpuK":70000,"capexMm":161.28,"tcvCapex":1.3640873015873016,"prepayPct":0,"prepayMm":0,"noiMargin":0.7849917090909091,"noiPerMw":12.49263425925926,"npv10":-18.15458343836498,"npvPerMw":-3.9397967531174007,"xirr":0.0349316269159317,"gpuPayback":2.801650898733291,"pps":-0.0824833413828486,"pctPrice":-0.030103409263813358,"arrMultiple":-0.24756250143224975,"noiMarginPct":78.4991709090909,"xirrPct":3.4931626915931697,"tenantType":"Neocloud / Enterprise"},{"col":"EP","deal":"SHAZ \"Global AI Platform\"","announced":"2026-08-13","platform":"B300","gpuCount":2048,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":373,"arrMm":74.6,"gpuHr":4.158194206621005,"gpuHrAdj":4.158194206621005,"kwPerGpu":1.75,"itMw":3.584,"arrPerMw":20.814732142857142,"costPerGpuK":60000,"capexMm":122.88,"tcvCapex":3.0354817708333335,"prepayPct":0,"prepayMm":0,"noiMargin":0.823724053619303,"noiPerMw":17.14559553571429,"npv10":110.01180615123742,"npvPerMw":30.695258412733654,"xirr":0.4099411666393281,"gpuPayback":1.9996805718586512,"pps":2.9452225745940774,"pctPrice":0.06547849209857887,"arrMultiple":1.4746890904991612,"noiMarginPct":82.3724053619303,"xirrPct":40.994116663932815,"tenantType":"Undisclosed"},{"col":"EX","deal":"NBIS midterm (1-3 years) - Reflection, Cohere, Jane, Frontier Lab","announced":"2026-08-12","platform":"B300","gpuCount":12500,"termYrs":2,"start":"2026-11-30","end":"2028-11-30","tcvMm":1000,"arrMm":500,"gpuHr":4.566210045662101,"gpuHrAdj":4.566210045662101,"kwPerGpu":1.75,"itMw":21.875,"arrPerMw":22.857142857142858,"costPerGpuK":55000,"capexMm":687.5,"tcvCapex":1.4545454545454546,"prepayPct":0.55,"prepayMm":550,"noiMargin":0.6851173543689321,"noiPerMw":15.659825242718448,"npv10":117.19264208303707,"npvPerMw":5.357377923795981,"xirr":null,"gpuPayback":1.6464847550479724,"pps":0.39064214027679023,"pctPrice":0.001663227062957339,"arrMultiple":0.23438528416607415,"noiMarginPct":68.5117354368932,"xirrPct":null,"tenantType":"Frontier Lab"},{"col":"FF","deal":"BTDR A102 Malaysia","announced":"2026-08-19","platform":"GB300","gpuCount":1800,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":400,"arrMm":80,"gpuHr":5.073566717402334,"gpuHrAdj":2.536783358701167,"kwPerGpu":2.75,"itMw":4.95,"arrPerMw":16.161616161616163,"costPerGpuK":85000,"capexMm":153,"tcvCapex":2.6143790849673203,"prepayPct":0.5,"prepayMm":200,"noiMargin":0.8647115,"noiPerMw":13.975135353535352,"npv10":200.27315170615782,"npvPerMw":40.45922256690057,"xirr":27.416698265075688,"gpuPayback":2.2117203252182955,"pps":0.7230754721552397,"pctPrice":0.07085501931947474,"arrMultiple":2.503414396326973,"noiMarginPct":86.47115,"xirrPct":2741.669826507569,"tenantType":"Undisclosed"},{"col":"FN","deal":"Nscale Anthropic WV 460 MW","announced":"2026-08-12","platform":"VR200","gpuCount":145000,"termYrs":6,"start":"2027-12-31","end":"2033-12-31","tcvMm":45000,"arrMm":7500,"gpuHr":5.904581955597544,"gpuHrAdj":2.952290977798772,"kwPerGpu":3.2,"itMw":464,"arrPerMw":16.163793103448278,"costPerGpuK":115000,"capexMm":16675,"tcvCapex":2.6986506746626686,"prepayPct":0.2,"prepayMm":9000,"noiMargin":0.6939434853293341,"noiPerMw":11.21675892234915,"npv10":15569.344311458792,"npvPerMw":33.554621360902566,"xirr":0.5863775074481965,"gpuPayback":2.437973965531753,"pps":null,"pctPrice":null,"arrMultiple":2.075912574861172,"noiMarginPct":69.39434853293342,"xirrPct":58.63775074481965,"tenantType":"Frontier Lab"},{"col":"FW","deal":"IREN 3-5 year deals - Cohere, Prometheus, Perplexity, Figure AI, Fal AI, Higgsfield AI, \"Frontier Lab\"","announced":"2026-08-27","platform":"B300","gpuCount":75000,"termYrs":3,"start":"2026-11-30","end":"2029-11-30","tcvMm":9000,"arrMm":3000,"gpuHr":4.566210045662101,"gpuHrAdj":4.566210045662101,"kwPerGpu":1.75,"itMw":131.25,"arrPerMw":22.857142857142858,"costPerGpuK":60000,"capexMm":4500,"tcvCapex":2,"prepayPct":0.5,"prepayMm":2250,"noiMargin":0.3975135776059304,"noiPerMw":9.086024630992695,"npv10":3649.719555692206,"npvPerMw":27.807387090988236,"xirr":null,"gpuPayback":1.6114520525870522,"pps":8.205187329867258,"pctPrice":0.21287293630476734,"arrMultiple":1.2165731852307353,"noiMarginPct":39.751357760593045,"xirrPct":null,"tenantType":"Neocloud / Enterprise"},{"col":"GE","deal":"IREN 2027 Cloud Deal Estimate @ $25mm/mw/y","announced":"2026-08-27","platform":"GB300","gpuCount":181818.18181818182,"termYrs":4,"start":"2027-06-30","end":"2031-06-30","tcvMm":50000,"arrMm":12500,"gpuHr":7.848173515981735,"gpuHrAdj":3.9240867579908674,"kwPerGpu":2.75,"itMw":500,"arrPerMw":25,"costPerGpuK":90000,"capexMm":16363.636363636364,"tcvCapex":3.0555555555555554,"prepayPct":0.5,"prepayMm":8181.818181818182,"noiMargin":0.543764194481761,"noiPerMw":13.594104862044027,"npv10":24756.191512807978,"npvPerMw":49.512383025615954,"xirr":null,"gpuPayback":1.442632515814859,"pps":55.65610887002354,"pctPrice":1.4439255122590098,"arrMultiple":1.9804953210246383,"noiMarginPct":54.37641944817611,"xirrPct":null,"tenantType":"Undisclosed"},{"col":"GM","deal":"Nscale Hyperscaler NC-1","announced":"2025-12-05","platform":"GB300","gpuCount":14400,"termYrs":5,"start":"2027-08-31","end":"2032-08-31","tcvMm":3000,"arrMm":600,"gpuHr":4.756468797564688,"gpuHrAdj":2.378234398782344,"kwPerGpu":2.75,"itMw":39.6,"arrPerMw":15.15151515151515,"costPerGpuK":85000,"capexMm":1224,"tcvCapex":2.450980392156863,"prepayPct":0.25,"prepayMm":750,"noiMargin":0.32529628480502654,"noiPerMw":4.928731587954947,"npv10":1052.9553800849615,"npvPerMw":26.589782325377815,"xirr":-0.43511075358837853,"gpuPayback":2.5292432593435454,"pps":null,"pctPrice":null,"arrMultiple":1.7549256334749357,"noiMarginPct":32.52962848050265,"xirrPct":-43.51107535883785,"tenantType":"Hyperscaler / IG"},{"col":"GU","deal":"Nscale Hyperscaler NC-1 Phase 2","announced":"TBD","platform":"GB300","gpuCount":12600,"termYrs":5,"start":"2027-08-31","end":"2032-08-31","tcvMm":4000,"arrMm":800,"gpuHr":7.247952453431906,"gpuHrAdj":3.623976226715953,"kwPerGpu":2.75,"itMw":34.65,"arrPerMw":23.08802308802309,"costPerGpuK":85000,"capexMm":1071,"tcvCapex":3.734827264239029,"prepayPct":0.5,"prepayMm":2000,"noiMargin":0.4997856580031417,"noiPerMw":11.539062811039347,"npv10":2207.350628193529,"npvPerMw":63.70420283386808,"xirr":-0.25787132903933535,"gpuPayback":1.6722275806368745,"pps":null,"pctPrice":null,"arrMultiple":2.759188285241911,"noiMarginPct":49.978565800314165,"xirrPct":-25.787132903933536,"tenantType":"Hyperscaler / IG"},{"col":"HC","deal":"Lambda Anthropic NVDA HUT","announced":"2026-08-12","platform":"VR200","gpuCount":110000,"termYrs":6,"start":"2027-12-31","end":"2033-12-31","tcvMm":35000,"arrMm":5833.333333333333,"gpuHr":6.053687560536876,"gpuHrAdj":3.026843780268438,"kwPerGpu":3.2,"itMw":352,"arrPerMw":16.571969696969695,"costPerGpuK":115000,"capexMm":12650,"tcvCapex":2.766798418972332,"prepayPct":0.25,"prepayMm":8750,"noiMargin":0.7086811899328296,"noiPerMw":11.744243204379279,"npv10":12816.468684480078,"npvPerMw":36.41042239909113,"xirr":2.9802322387695314e-09,"gpuPayback":2.5479124956295944,"pps":null,"pctPrice":null,"arrMultiple":2.1971089173394422,"noiMarginPct":70.86811899328296,"xirrPct":2.980232238769531e-07,"tenantType":"NVIDIA-backstopped"},{"col":"HL","deal":"Nscale MSFT NVDA Guarantor","announced":"2025-10-14","platform":"GB300","gpuCount":60000,"termYrs":6,"start":"2027-12-31","end":"2033-12-31","tcvMm":12500,"arrMm":2083.3333333333335,"gpuHr":3.9637239979705736,"gpuHrAdj":1.9818619989852868,"kwPerGpu":2.75,"itMw":165,"arrPerMw":12.626262626262626,"costPerGpuK":85000,"capexMm":5100,"tcvCapex":2.450980392156863,"prepayPct":0.25,"prepayMm":3125,"noiMargin":0.6466884199002215,"noiPerMw":8.165257827023,"npv10":2200.098700612159,"npvPerMw":13.33393151886157,"xirr":0.6243252456188202,"gpuPayback":2.884564477931107,"pps":null,"pctPrice":null,"arrMultiple":1.0560473762938363,"noiMarginPct":64.66884199002216,"xirrPct":62.43252456188202,"tenantType":"NVIDIA-backstopped"},{"col":"HU","deal":"BTDR A102 Malaysia Part 2","announced":"2026-08-31","platform":"GB300","gpuCount":1800,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":400,"arrMm":80,"gpuHr":5.073566717402334,"gpuHrAdj":2.536783358701167,"kwPerGpu":2.75,"itMw":4.95,"arrPerMw":16.161616161616163,"costPerGpuK":85000,"capexMm":153,"tcvCapex":2.6143790849673203,"prepayPct":0.5,"prepayMm":200,"noiMargin":0.8647115,"noiPerMw":13.975135353535352,"npv10":200.27315170615782,"npvPerMw":40.45922256690057,"xirr":27.416698265075688,"gpuPayback":2.2117203252182955,"pps":0.7230754721552397,"pctPrice":0.07085501931947474,"arrMultiple":2.503414396326973,"noiMarginPct":86.47115,"xirrPct":2741.669826507569,"tenantType":"Undisclosed"},{"col":"IC","deal":"Crusoe Jane Street","announced":"2026-09-03","platform":"GB300","gpuCount":50000,"termYrs":5,"start":"2027-03-31","end":"2032-03-31","tcvMm":13000,"arrMm":2600,"gpuHr":5.936073059360731,"gpuHrAdj":2.9680365296803655,"kwPerGpu":2.75,"itMw":137.5,"arrPerMw":18.90909090909091,"costPerGpuK":85000,"capexMm":4250,"tcvCapex":3.0588235294117645,"prepayPct":0.25,"prepayMm":3250,"noiMargin":0.8771038461538463,"noiPerMw":16.585236363636366,"npv10":6120.213172502588,"npvPerMw":44.51064125456428,"xirr":0.8957999110221864,"gpuPayback":1.8636509140659598,"pps":null,"pctPrice":null,"arrMultiple":2.353928143270226,"noiMarginPct":87.71038461538463,"xirrPct":89.57999110221864,"tenantType":"Neocloud / Enterprise"},{"col":"IK","deal":"Rumble Anthropic","announced":"2026-09-14","platform":"VR200","gpuCount":30000,"termYrs":6,"start":"2027-06-30","end":"2033-06-30","tcvMm":13700,"arrMm":2283.3333333333335,"gpuHr":8.688483003551497,"gpuHrAdj":4.344241501775748,"kwPerGpu":3.2,"itMw":96,"arrPerMw":23.784722222222225,"costPerGpuK":125000,"capexMm":3750,"tcvCapex":3.6533333333333333,"prepayPct":0,"prepayMm":0,"noiMargin":0.5570164726955598,"noiPerMw":13.248482076265917,"npv10":5468.9666396756365,"npvPerMw":56.968402496621216,"xirr":1.1101316571235658,"gpuPayback":1.779103250992534,"pps":13.672416599189091,"pctPrice":1.8266421642203194,"arrMultiple":2.3951678713907896,"noiMarginPct":55.70164726955598,"xirrPct":111.01316571235658,"tenantType":"Frontier Lab"},{"col":"IT","deal":"Boost Run Cohere","announced":"2026-09-03","platform":"GB300","gpuCount":2160,"termYrs":5,"start":"2027-06-01","end":"2032-06-30","tcvMm":525.6,"arrMm":105.12,"gpuHr":5.555555555555555,"gpuHrAdj":2.7777777777777777,"kwPerGpu":2.75,"itMw":5.94,"arrPerMw":17.696969696969695,"costPerGpuK":85000,"capexMm":183.6,"tcvCapex":2.8627450980392157,"prepayPct":0.25,"prepayMm":131.4,"noiMargin":0.8681780821917808,"noiPerMw":15.364121212121212,"npv10":218.57660633856148,"npvPerMw":36.797408474505296,"xirr":1.5519912123680117,"gpuPayback":2.0117708316897294,"pps":2.749825677978003,"pctPrice":0.19324143907083646,"arrMultiple":2.079305615853895,"noiMarginPct":86.81780821917809,"xirrPct":155.19912123680118,"tenantType":"Neocloud / Enterprise"}],"n":32,"generated":"2026-10-07T18:08:34Z"};
 /*__DATA_END__*/
 
 (function () {
-  const X_OPTS = [
-    {k:"itMw", l:"IT MW"},
-    {k:"gpuCount", l:"GPU Count"},
-    {k:"termYrs", l:"Term (yrs)"},
-    {k:"announced", l:"Announced"},
-    {k:"arrMm", l:"ARR ()"},
-  ];
-  const Y_OPTS = [
-    {k:"gpuHr", l:"$/GPU-hr"},
-    {k:"gpuHrAdj", l:"$/GPU-hr Adj"},
-    {k:"arrPerMw", l:"ARR / MW"},
-    {k:"arrMultiple", l:"ARR Multiple"},
-    {k:"xirrPct", l:"XIRR %"},
-    {k:"npvPerMw", l:"NPV / MW"},
-    {k:"noiPerMw", l:"NOI / MW"},
-  ];
-  const SIZE_OPTS = [
-    {k:"tcvMm", l:"TCV ()"},
-    {k:"arrMm", l:"ARR ()"},
-    {k:"gpuCount", l:"GPU Count"},
-    {k:"itMw", l:"IT MW"},
-    {k:"none", l:"None"},
-  ];
-  const COLS = [
-    {k:"deal", l:"Deal", num:false},
-    {k:"announced", l:"Announced", num:false},
-    {k:"platform", l:"Platform", num:false},
-    {k:"gpuCount", l:"GPUs", num:true},
-    {k:"termYrs", l:"Term", num:true},
-    {k:"tcvMm", l:"TCV $mm", num:true},
-    {k:"arrMm", l:"ARR $mm", num:true},
-    {k:"gpuHr", l:"$/GPU-hr", num:true},
-    {k:"gpuHrAdj", l:"$/hr Adj", num:true},
-    {k:"itMw", l:"IT MW", num:true},
-    {k:"arrPerMw", l:"ARR/MW", num:true},
-    {k:"xirrPct", l:"XIRR%", num:true},
-    {k:"arrMultiple", l:"ARR Mult", num:true},
-    {k:"noiMarginPct", l:"NOI%", num:true},
-    {k:"npvPerMw", l:"NPV/MW", num:true},
-  ];
+  const ACCENT = "#5b8cff";
+  const ACCENT2 = "#3dd6c6";
+  const GRID = "#1e283a";
+
+  function rgba(hex, a) {
+    const h = hex.replace("#","");
+    const n = parseInt(h.length===3 ? h.split("").map(c=>c+c).join("") : h, 16);
+    const r = (n>>16)&255, g = (n>>8)&255, b = n&255;
+    return "rgba("+r+","+g+","+b+","+a+")";
+  }
 
   const chartsEnabled = (typeof Chart !== "undefined");
   function showChartError(msg) {
@@ -211,254 +202,404 @@ const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","
     Chart.defaults.borderColor = "#2a3548";
     Chart.defaults.font.family = "Inter, Segoe UI, system-ui, sans-serif";
   } else {
-    showChartError("Chart.js failed to load (local ./vendor and CDN). Charts are disabled; KPIs, filters, and table still work.");
+    showChartError("Chart.js failed to load from ./vendor. Charts disabled; KPIs, filters, and table still work.");
   }
 
+  // Customer-type palette mirrors the colo league colors.
+  const TENANT_TYPES = [
+    { id: "Hyperscaler / IG", label: "Hyperscaler / IG", color: "#4F7FE6" },
+    { id: "NVIDIA-backstopped", label: "NVIDIA-backstopped", color: "#5CCBF2" },
+    { id: "Frontier Lab", label: "Frontier Lab", color: "#F08A3E" },
+    { id: "Neocloud / Enterprise", label: "Neocloud / Enterprise", color: "#E0508F" },
+    { id: "Undisclosed", label: "Undisclosed", color: "#9AA3B2" },
+  ];
+  const PLATFORMS = [
+    { id: "H100", label: "H100", color: "#9AA3B2" },
+    { id: "H200", label: "H200", color: "#B9A2F0" },
+    { id: "B200", label: "B200", color: "#3DD6C6" },
+    { id: "B300", label: "B300", color: "#5B8CFF" },
+    { id: "GB200", label: "GB200", color: "#F2C14E" },
+    { id: "GB300", label: "GB300", color: "#F08A3E" },
+    { id: "VR200", label: "VR200", color: "#E0508F" },
+    { id: "Mixed", label: "Mixed", color: "#7FD17F" },
+    { id: "Other", label: "Other", color: "#6B7486" },
+  ];
+
+  function platformTokens(d) {
+    const s = String(d.platform || "").toUpperCase();
+    return ["H100","H200","B200","B300","GB200","GB300","VR200"].filter(p => new RegExp("\\b" + p + "\\b").test(s));
+  }
+  function platformGroup(d) {
+    const t = platformTokens(d);
+    if (t.length === 1) return t[0];
+    if (t.length > 1) return "Mixed";
+    return "Other";
+  }
+  function typeId(d) {
+    const t = d.tenantType;
+    return TENANT_TYPES.some(x => x.id === t) ? t : "Undisclosed";
+  }
+  function typeMeta(d) {
+    const id = typeId(d);
+    return TENANT_TYPES.find(x => x.id === id) || TENANT_TYPES[TENANT_TYPES.length - 1];
+  }
+  function groups() { return els.colorBy.value === "platform" ? PLATFORMS : TENANT_TYPES; }
+  function groupOf(d) { return els.colorBy.value === "platform" ? platformGroup(d) : typeId(d); }
+  function groupMeta(d) {
+    const g = groups(); const id = groupOf(d);
+    return g.find(x => x.id === id) || g[g.length - 1];
+  }
 
   const els = {
     q: document.getElementById("q"),
     platform: document.getElementById("platform"),
-    clip: document.getElementById("clip"),
-    wyfiOnly: document.getElementById("wyfiOnly"),
-    requireArrTcv: document.getElementById("requireArrTcv"),
-    xField: document.getElementById("xField"),
-    yField: document.getElementById("yField"),
-    sizeField: document.getElementById("sizeField"),
+    ttype: document.getElementById("ttype"),
+    minTcv: document.getElementById("minTcv"),
+    year: document.getElementById("year"),
+    dateBasis: document.getElementById("dateBasis"),
+    colorBy: document.getElementById("colorBy"),
     kpis: document.getElementById("kpis"),
     meta: document.getElementById("meta"),
     tableCount: document.getElementById("tableCount"),
   };
 
-  function fillSelect(sel, opts, def) {
-    sel.innerHTML = opts.map(o => "<option value=\"" + o.k + "\"" + (o.k===def?" selected":"") + ">" + o.l + "</option>").join("");
-  }
-  fillSelect(els.xField, X_OPTS, "itMw");
-  fillSelect(els.yField, Y_OPTS, "gpuHr");
-  fillSelect(els.sizeField, SIZE_OPTS, "tcvMm");
-
-  const platforms = [...new Set((DATA.deals||[]).map(d => d.platform).filter(Boolean))].sort();
-  platforms.forEach(p => {
+  const ALL = DATA.deals || [];
+  function addOpt(sel, v, l) {
     const o = document.createElement("option");
-    o.value = p; o.textContent = p;
-    els.platform.appendChild(o);
-  });
-  els.meta.textContent = (DATA.n || (DATA.deals||[]).length) + " deals loaded";
+    o.value = v; o.textContent = l || v;
+    sel.appendChild(o);
+  }
+  ["H100","H200","B200","B300","GB200","GB300","VR200"]
+    .filter(p => ALL.some(d => platformTokens(d).indexOf(p) !== -1))
+    .forEach(p => addOpt(els.platform, p));
+  TENANT_TYPES.filter(t => ALL.some(d => typeId(d) === t.id)).forEach(t => addOpt(els.ttype, t.id, t.label));
+  [...new Set(ALL.map(d => (d.announced||"").slice(0,4)).filter(y => /^\d{4}$/.test(y)))].sort()
+    .forEach(y => addOpt(els.year, y));
 
-  function num(v) { return (typeof v === "number" && !Number.isNaN(v)) ? v : null; }
+  function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v); }
+  const asOf = ALL.map(d => d.announced).filter(isDate).sort().pop() || null;
+  els.meta.textContent = (DATA.n || ALL.length) + " deals"
+    + (asOf ? " · as-of " + asOf : "")
+    + (DATA.generated ? " · generated " + DATA.generated : "");
+
+  function num(v) { return (typeof v === "number" && Number.isFinite(v)) ? v : null; }
   function median(arr) {
-    const a = arr.filter(v => typeof v === "number" && !Number.isNaN(v)).sort((x,y)=>x-y);
+    const a = arr.filter(v => typeof v === "number" && Number.isFinite(v)).sort((x,y)=>x-y);
     if (!a.length) return null;
     const m = Math.floor(a.length/2);
     return a.length % 2 ? a[m] : (a[m-1]+a[m])/2;
   }
-  function fmt(v, digits=2) {
+  function sum(arr) {
+    const a = arr.filter(v => typeof v === "number" && Number.isFinite(v));
+    if (!a.length) return null;
+    return a.reduce((s,v)=>s+v, 0);
+  }
+  function fmt(v, digits) {
+    if (digits == null) digits = 2;
     if (v == null || Number.isNaN(v)) return "—";
-    if (Math.abs(v) >= 1000) return v.toLocaleString(undefined, {maximumFractionDigits: digits});
     return Number(v).toLocaleString(undefined, {maximumFractionDigits: digits});
   }
-  function clipVal() {
-    const c = parseFloat(els.clip.value);
-    return (Number.isFinite(c) && c > 0) ? c : Infinity;
-  }
+  function pct(v, digits) { return v == null ? "—" : fmt(v * 100, digits == null ? 1 : digits) + "%"; }
 
   function filtered() {
     const q = (els.q.value || "").trim().toLowerCase();
     const plat = els.platform.value;
-    const clip = clipVal();
-    const wyfiOnly = els.wyfiOnly.checked;
-    const req = els.requireArrTcv.checked;
-    return (DATA.deals || []).filter(d => {
-      if (wyfiOnly && !d.isWyfi) return false;
-      if (plat && d.platform !== plat) return false;
-      if (req && (num(d.arrMm) == null || num(d.tcvMm) == null)) return false;
+    const tt = els.ttype.value;
+    const year = els.year.value;
+    const minTcv = parseFloat(els.minTcv.value);
+    return ALL.filter(d => {
+      if (plat && platformTokens(d).indexOf(plat) === -1) return false;
+      if (tt && typeId(d) !== tt) return false;
+      if (year && !(d.announced||"").startsWith(year)) return false;
+      if (Number.isFinite(minTcv) && minTcv > 0) {
+        const t = num(d.tcvMm);
+        if (t == null || t < minTcv) return false;
+      }
       if (q) {
-        const hay = (d.deal||"") + " " + (d.platform||"") + " " + (d.col||"");
+        const hay = (d.deal||"") + " " + (d.platform||"") + " " + typeId(d);
         if (!hay.toLowerCase().includes(q)) return false;
       }
-      const gh = num(d.gpuHr);
-      if (gh != null && gh > clip) return false;
       return true;
     });
   }
 
-  let bubbleChart, timeChart, barChart, histChart;
+  const charts = {};
 
-  function pointColor(d, alpha=0.75) {
-    return d.isWyfi ? ("rgba(167,139,250," + alpha + ")") : ("rgba(91,140,255," + alpha + ")");
+  function tipLines(d, extra) {
+    const lines = [d.deal];
+    lines.push("Type: " + typeMeta(d).label);
+    if (d.platform) lines.push("Platform: " + d.platform);
+    if (extra) extra.forEach(x => { if (x) lines.push(x); });
+    return lines;
   }
 
-  function buildBubble(rows) {
-    const xk = els.xField.value;
-    const yk = els.yField.value;
-    const sk = els.sizeField.value;
-    const isTime = xk === "announced";
-    const pts = [];
-    let maxS = 1;
-    rows.forEach(d => {
-      let x;
-      if (isTime) {
-        if (!d.announced) return;
-        x = d.announced;
-      } else {
-        x = num(d[xk]);
-        if (x == null) return;
-      }
-      const y = num(d[yk]);
-      if (y == null) return;
-      const s = sk === "none" ? 8 : num(d[sk]);
-      if (sk !== "none" && s == null) return;
-      if (sk !== "none") maxS = Math.max(maxS, Math.abs(s));
-      pts.push({ x: x, y: y, r: 6, _deal: d, _s: s });
-    });
-    if (sk !== "none") {
-      pts.forEach(p => { p.r = Math.max(4, Math.sqrt(Math.abs(p._s)/maxS)*28); });
-    }
-    const cfg = {
-      type: "bubble",
-      data: {
-        datasets: [{
-          label: "Deals",
-          data: pts,
-          backgroundColor: pts.map(p => pointColor(p._deal, 0.55)),
-          borderColor: pts.map(p => pointColor(p._deal, 1)),
-          borderWidth: 1,
-        }]
+  function barLabel(d) {
+    const name = d.deal || "";
+    return name.length > 38 ? name.slice(0, 36) + "…" : name;
+  }
+
+  function dateKey() { return els.dateBasis.value === "start" ? "start" : "announced"; }
+  function dateOf(d) {
+    const v = d[dateKey()];
+    return isDate(v) ? v.slice(0, 10) : null;
+  }
+  function dateAxisTitle() { return dateKey() === "start" ? "Start date" : "Announced"; }
+
+  function timeScale() {
+    return {
+      type: "time",
+      time: {
+        tooltipFormat: "yyyy-MM-dd",
+        displayFormats: { month: "MMM yyyy", quarter: "MMM yyyy", year: "yyyy" },
       },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: {
-            label(ctx) {
-              const r = ctx.raw;
-              if (!r || !r._deal) return ctx.formattedValue;
-              const d = r._deal;
-              const lines = [d.deal, "X: " + fmt(r.x) + "  Y: " + fmt(r.y)];
-              if (d.platform) lines.push("Platform: " + d.platform);
-              if (num(d.tcvMm)!=null) lines.push("TCV: " + fmt(d.tcvMm) + " $mm");
-              if (num(d.arrMm)!=null) lines.push("ARR: " + fmt(d.arrMm) + " $mm");
-              if (num(d.gpuHr)!=null) lines.push("$/GPU-hr: " + fmt(d.gpuHr));
-              return lines;
-            }
-          }},
-        },
-        scales: {
-          x: isTime ? {
-            type: "time", time: { unit: "month" },
-            title: { display: true, text: "Announced" }, grid: { color: "#1e283a" },
-          } : {
-            title: { display: true, text: X_OPTS.find(o=>o.k===xk).l }, grid: { color: "#1e283a" },
-          },
-          y: {
-            title: { display: true, text: Y_OPTS.find(o=>o.k===yk).l }, grid: { color: "#1e283a" },
-          }
-        }
-      }
+      title: { display: true, text: dateAxisTitle() },
+      grid: { color: GRID },
     };
-    if (bubbleChart) bubbleChart.destroy();
-    bubbleChart = new Chart(document.getElementById("bubbleChart"), cfg);
   }
 
-  function buildTime(rows) {
-    const pts = rows.filter(d => d.announced && num(d.gpuHr)!=null).map(d => ({
-      x: d.announced, y: d.gpuHr, r: d.isWyfi ? 7 : 5, _deal: d
-    }));
-    if (timeChart) timeChart.destroy();
-    timeChart = new Chart(document.getElementById("timeChart"), {
-      type: "scatter",
-      data: { datasets: [{
-        label: "$/GPU-hr",
-        data: pts,
-        backgroundColor: pts.map(p => pointColor(p._deal, 0.7)),
-        borderColor: pts.map(p => pointColor(p._deal, 1)),
-        pointRadius: pts.map(p => p.r),
-      }]},
+  function trendPoints(pts) {
+    if (pts.length < 2) return [];
+    const xs = pts.map(p => new Date(p.x).getTime());
+    const ys = pts.map(p => p.y);
+    const n = xs.length;
+    const meanX = xs.reduce((a, b) => a + b, 0) / n;
+    const meanY = ys.reduce((a, b) => a + b, 0) / n;
+    let nume = 0, deno = 0;
+    for (let i = 0; i < n; i++) {
+      nume += (xs[i] - meanX) * (ys[i] - meanY);
+      deno += (xs[i] - meanX) * (xs[i] - meanX);
+    }
+    if (!deno) return [];
+    const slope = nume / deno;
+    const intercept = meanY - slope * meanX;
+    const minX = Math.min.apply(null, xs);
+    const maxX = Math.max.apply(null, xs);
+    return [
+      { x: minX, y: intercept + slope * minX },
+      { x: maxX, y: intercept + slope * maxX },
+    ];
+  }
+
+  // Bubble radius scaled on sqrt(TCV) against the full dataset so sizes stay
+  // comparable across charts and filters.
+  const MAX_TCV = Math.max.apply(null, ALL.map(d => Math.abs(num(d.tcvMm) || 0)).concat([1]));
+  function radius(d) {
+    const v = Math.abs(num(d.tcvMm) || 0);
+    return Math.max(4, Math.sqrt(v / MAX_TCV) * 30);
+  }
+
+  function replaceChart(id, config) {
+    if (charts[id]) charts[id].destroy();
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    charts[id] = new Chart(canvas, config);
+  }
+
+  function setNote(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text || "";
+  }
+
+  function buildTimeScatter(id, rows, spec) {
+    const pts = [];
+    let undated = 0, excluded = [];
+    rows.forEach(d => {
+      const y = spec.y(d);
+      if (y == null) return;
+      if (spec.exclude && spec.exclude(d)) { excluded.push(d.deal); return; }
+      const x = dateOf(d);
+      if (!x) { undated++; return; }
+      pts.push({ x: x, y: y, r: radius(d), _deal: d });
+    });
+    const notes = [];
+    if (undated) notes.push(undated + " deal" + (undated > 1 ? "s" : "") + " with no " + (dateKey() === "start" ? "start" : "announce") + " date not plotted");
+    if (excluded.length) notes.push(spec.excludeNote + ": " + excluded.join("; "));
+    setNote(spec.note, notes.join(" · "));
+    const trend = spec.trend === false ? [] : trendPoints(pts);
+    const datasets = [];
+    groups().forEach(g => {
+      const data = pts.filter(p => groupOf(p._deal) === g.id);
+      if (!data.length) return;
+      datasets.push({
+        type: "bubble",
+        label: g.label,
+        data: data,
+        backgroundColor: rgba(g.color, 0.72),
+        borderColor: g.color,
+        borderWidth: 1,
+        pointStyle: "circle",
+        order: 2,
+      });
+    });
+    if (trend.length === 2) {
+      datasets.push({
+        type: "line",
+        label: "Trend",
+        data: trend,
+        borderColor: "#d5deea",
+        borderDash: [6, 4],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHitRadius: 0,
+        pointStyle: "line",
+        tension: 0,
+        order: 1,
+      });
+    }
+    const yScale = { title: { display: true, text: spec.yTitle }, grid: { color: GRID } };
+    if (spec.yTick) yScale.ticks = { callback: spec.yTick };
+    replaceChart(id, {
+      type: "bubble",
+      data: { datasets: datasets },
       options: {
-        responsive: true, maintainAspectRatio: false,
+        animation: false,
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: "top",
+            labels: { boxWidth: 10, padding: 8, usePointStyle: true, font: { size: 11 } },
+          },
           tooltip: { callbacks: {
             label(ctx) {
-              const d = ctx.raw._deal;
-              return [d.deal, d.announced, "$/GPU-hr: " + fmt(d.gpuHr)];
+              const d = ctx.raw && ctx.raw._deal;
+              if (!d) return "Trend";
+              return tipLines(d, spec.tips(d).concat([
+                "TCV: " + fmt(d.tcvMm, 0) + " $mm",
+                dateAxisTitle() + ": " + (dateOf(d) || "—"),
+              ]));
             }
           }}
         },
+        scales: { x: timeScale(), y: yScale },
+      },
+    });
+  }
+
+  function buildGpuHr(rows) {
+    buildTimeScatter("gpuHrChart", rows, {
+      y: d => num(d.gpuHrAdj),
+      yTitle: "$/GPU-hr (Adj)",
+      note: "gpuHrNote",
+      tips: d => ["$/GPU-hr (Adj): $" + fmt(d.gpuHrAdj), "$/GPU-hr (headline): $" + fmt(d.gpuHr), "GPUs: " + fmt(d.gpuCount, 0)],
+    });
+  }
+  function buildArr(rows) {
+    buildTimeScatter("arrChart", rows, {
+      y: d => num(d.arrPerMw),
+      yTitle: "ARR / MW / Yr ($mm)",
+      note: "arrNote",
+      tips: d => ["ARR/MW/Yr: " + fmt(d.arrPerMw) + " $mm", "IT MW: " + fmt(d.itMw, 1)],
+    });
+  }
+  function buildNoi(rows) {
+    buildTimeScatter("noiChart", rows, {
+      y: d => num(d.noiPerMw),
+      yTitle: "NOI $/MW/Yr ($mm)",
+      note: "noiNote",
+      tips: d => ["NOI $/MW/Yr: " + fmt(d.noiPerMw) + " $mm", "NOI margin: " + pct(num(d.noiMargin))],
+    });
+  }
+  function buildNpv(rows) {
+    buildTimeScatter("npvChart", rows, {
+      y: d => num(d.npvPerMw),
+      yTitle: "NPV / MW ($mm)",
+      note: "npvNote",
+      trend: false,
+      tips: d => ["NPV/MW: " + fmt(d.npvPerMw) + " $mm", "NPV-10: " + fmt(d.npv10, 0) + " $mm"],
+    });
+  }
+  function xirrOutlier(d) {
+    const x = num(d.xirr);
+    return x != null && (x > 3 || Math.abs(x) < 1e-6);
+  }
+  function buildXirr(rows) {
+    buildTimeScatter("xirrChart", rows, {
+      y: d => (num(d.xirr) == null ? null : d.xirr * 100),
+      exclude: xirrOutlier,
+      excludeNote: "Off-chart (XIRR >300% or ~0% solver artifact)",
+      yTitle: "XIRR (%)",
+      yTick: v => v + "%",
+      note: "xirrNote",
+      tips: d => ["XIRR: " + pct(num(d.xirr)), "GPU payback: " + fmt(d.gpuPayback) + " yrs"],
+    });
+  }
+
+  function buildCumulative(rows) {
+    const byDate = new Map();
+    let undated = 0;
+    rows.forEach(d => {
+      const x = dateOf(d);
+      const mw = num(d.itMw);
+      if (mw == null) return;
+      if (!x) { undated++; return; }
+      byDate.set(x, (byDate.get(x) || 0) + mw);
+    });
+    setNote("mwNote", undated ? undated + " deal" + (undated > 1 ? "s" : "") + " with no " + (dateKey() === "start" ? "start" : "announce") + " date not included" : "");
+    let run = 0;
+    const pts = [...byDate.keys()].sort().map(x => {
+      run += byDate.get(x);
+      return { x: x, y: run };
+    });
+    replaceChart("mwChart", {
+      type: "line",
+      data: { datasets: [{
+        label: "Cumulative IT MW",
+        data: pts,
+        borderColor: ACCENT2,
+        backgroundColor: rgba(ACCENT2, 0.18),
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: ACCENT2,
+        fill: true,
+        tension: 0,
+      }]},
+      options: {
+        animation: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label(ctx) { return "Cumulative IT MW: " + fmt(ctx.parsed.y, 0); } } }
+        },
         scales: {
-          x: { type: "time", time: { unit: "month" }, title: { display: true, text: "Announced" }, grid: { color: "#1e283a" } },
-          y: { title: { display: true, text: "$/GPU-hr" }, grid: { color: "#1e283a" } }
-        }
-      }
+          x: timeScale(),
+          y: { title: { display: true, text: "Cumulative IT MW" }, beginAtZero: true, grid: { color: GRID } },
+        },
+      },
     });
   }
 
   function buildBar(rows) {
-    const top = rows.filter(d => num(d.arrMm)!=null).sort((a,b)=>b.arrMm-a.arrMm).slice(0,12);
-    if (barChart) barChart.destroy();
-    barChart = new Chart(document.getElementById("barChart"), {
+    const top = rows.filter(d => num(d.tcvMm) != null).sort((a,b) => b.tcvMm - a.tcvMm);
+    replaceChart("barChart", {
       type: "bar",
       data: {
-        labels: top.map(d => d.deal.length>28 ? d.deal.slice(0,26)+"…" : d.deal),
+        labels: top.map(barLabel),
         datasets: [{
-          data: top.map(d => d.arrMm),
-          backgroundColor: top.map(d => pointColor(d, 0.7)),
-          borderColor: top.map(d => pointColor(d, 1)),
-          borderWidth: 1, borderRadius: 4,
+          data: top.map(d => d.tcvMm),
+          backgroundColor: top.map(d => rgba(groupMeta(d).color, 0.75)),
+          borderColor: top.map(d => groupMeta(d).color),
+          borderWidth: 1,
+          borderRadius: 4,
         }]
       },
       options: {
+        animation: false,
         indexAxis: "y",
-        responsive: true, maintainAspectRatio: false,
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: {
-          label(ctx) { return "ARR: " + fmt(ctx.raw) + " $mm"; }
+          title(items) { return items.length ? top[items[0].dataIndex].deal : ""; },
+          label(ctx) {
+            const d = top[ctx.dataIndex];
+            return ["TCV: " + fmt(ctx.raw, 0) + " $mm", "Type: " + typeMeta(d).label, "Platform: " + (d.platform || "—")];
+          }
         }}},
         scales: {
-          x: { title: { display: true, text: "ARR ($mm)" }, grid: { color: "#1e283a" } },
-          y: { grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  function buildHist(rows) {
-    const vals = rows.map(d => num(d.arrPerMw)).filter(v => v != null);
-    const bins = 12;
-    let labels = [];
-    let counts = [];
-    if (vals.length) {
-      const min = Math.min(...vals), max = Math.max(...vals);
-      const span = max - min || 1;
-      const w = span / bins;
-      counts = Array(bins).fill(0);
-      labels = Array(bins).fill(0).map((_,i) => {
-        const a = min + i*w, b = a+w;
-        return fmt(a,1) + "–" + fmt(b,1);
-      });
-      vals.forEach(v => {
-        let i = Math.floor((v - min) / w);
-        if (i >= bins) i = bins-1;
-        if (i < 0) i = 0;
-        counts[i]++;
-      });
-    }
-    if (histChart) histChart.destroy();
-    histChart = new Chart(document.getElementById("histChart"), {
-      type: "bar",
-      data: {
-        labels: labels,
-        datasets: [{
-          data: counts,
-          backgroundColor: "rgba(61,214,198,0.55)",
-          borderColor: "rgba(61,214,198,1)",
-          borderWidth: 1, borderRadius: 3,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { title: { display: true, text: "ARR / MW ($mm)" }, ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 8 }, grid: { display: false } },
-          y: { title: { display: true, text: "Count" }, grid: { color: "#1e283a" }, ticks: { precision: 0 } }
+          x: { title: { display: true, text: "TCV ($mm)" }, grid: { color: GRID } },
+          y: { grid: { display: false }, ticks: { autoSkip: false, font: { size: 11 } } }
         }
       }
     });
@@ -466,18 +607,47 @@ const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","
 
   function renderKpis(rows) {
     const cards = [
-      { lbl: "Deals", val: rows.length, raw: true },
-      { lbl: "Median $/GPU-hr", val: median(rows.map(d => num(d.gpuHr))) },
-      { lbl: "Median ARR ($mm)", val: median(rows.map(d => num(d.arrMm))) },
-      { lbl: "Median IT MW", val: median(rows.map(d => num(d.itMw))) },
-      { lbl: "Median ARR/MW", val: median(rows.map(d => num(d.arrPerMw))) },
-      { lbl: "Median XIRR %", val: median(rows.map(d => num(d.xirrPct))) },
+      { lbl: "# Deals", val: String(rows.length) },
+      { lbl: "Σ GPUs", val: fmt(sum(rows.map(d => num(d.gpuCount))), 0) },
+      { lbl: "Σ TCV ($mm)", val: fmt(sum(rows.map(d => num(d.tcvMm))), 0) },
+      { lbl: "Med $/GPU-hr (Adj)", val: (function (m) { return m == null ? "—" : "$" + fmt(m); })(median(rows.map(d => num(d.gpuHrAdj)))) },
+      { lbl: "Med ARR/MW/Yr", val: fmt(median(rows.map(d => num(d.arrPerMw)))) },
+      { lbl: "Med NOI $/MW/Yr", val: fmt(median(rows.map(d => num(d.noiPerMw)))) },
+      { lbl: "Med NPV/MW", val: fmt(median(rows.map(d => num(d.npvPerMw)))) },
     ];
     els.kpis.innerHTML = cards.map(c =>
-      "<div class=\"kpi\"><div class=\"lbl\">" + c.lbl + "</div><div class=\"val\">" +
-      (c.raw ? c.val : fmt(c.val)) + "</div></div>"
+      "<div class=\"kpi\"><div class=\"lbl\">" + c.lbl + "</div><div class=\"val\">" + c.val + "</div></div>"
     ).join("");
   }
+
+  const COLS = [
+    {k:"deal", l:"Deal"},
+    {k:"tenantType", l:"Type", get: typeId},
+    {k:"platform", l:"Platform"},
+    {k:"announced", l:"Announced", date:true},
+    {k:"start", l:"Start", date:true},
+    {k:"termYrs", l:"Term", num:true, d:1},
+    {k:"gpuCount", l:"GPUs", num:true, d:0},
+    {k:"itMw", l:"IT MW", num:true, d:1},
+    {k:"tcvMm", l:"TCV", num:true, d:0},
+    {k:"arrMm", l:"ARR", num:true, d:0},
+    {k:"gpuHr", l:"$/GPU-hr", num:true},
+    {k:"gpuHrAdj", l:"$/GPU-hr Adj", num:true},
+    {k:"arrPerMw", l:"ARR/MW/Yr", num:true},
+    {k:"noiPerMw", l:"NOI $/MW/Yr", num:true},
+    {k:"noiMargin", l:"NOI%", num:true, pct:true},
+    {k:"capexMm", l:"Capex", num:true, d:0},
+    {k:"tcvCapex", l:"TCV/Capex", num:true},
+    {k:"prepayPct", l:"Prepay%", num:true, pct:true},
+    {k:"npv10", l:"NPV-10", num:true, d:0},
+    {k:"npvPerMw", l:"NPV/MW", num:true},
+    {k:"xirr", l:"XIRR%", num:true, pct:true},
+    {k:"gpuPayback", l:"Payback (yrs)", num:true},
+    {k:"pps", l:"PPS", num:true},
+    {k:"pctPrice", l:"% Price", num:true, pct:true},
+    {k:"arrMultiple", l:"ARR Mult", num:true},
+  ];
+  function cellVal(d, c) { return c.get ? c.get(d) : d[c.k]; }
 
   let sortKey = "announced";
   let sortDir = -1;
@@ -503,13 +673,19 @@ const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","
     });
     const col = COLS.find(c => c.k === sortKey) || COLS[0];
     const sorted = rows.slice().sort((a,b) => {
-      let av = a[sortKey], bv = b[sortKey];
+      let av = cellVal(a, col), bv = cellVal(b, col);
       if (col.num) {
         av = num(av); bv = num(bv);
         if (av == null && bv == null) return 0;
         if (av == null) return 1;
         if (bv == null) return -1;
         return (av - bv) * sortDir;
+      }
+      if (col.date) {
+        const ad = isDate(av), bd = isDate(bv);
+        if (!ad && !bd) return 0;
+        if (!ad) return 1;
+        if (!bd) return -1;
       }
       av = (av == null ? "" : String(av)).toLowerCase();
       bv = (bv == null ? "" : String(bv)).toLowerCase();
@@ -520,27 +696,32 @@ const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","
     els.tableCount.textContent = "(" + sorted.length + ")";
     tbody.innerHTML = sorted.map(d => {
       const cells = COLS.map(c => {
-        const v = d[c.k];
-        if (c.k === "deal") {
-          return "<td>" + escapeHtml(d.deal||"") + (d.isWyfi?"<span class=\"badge\">WYFI</span>":"") + "</td>";
-        }
-        if (c.num) return "<td class=\"num\">" + fmt(num(v)) + "</td>";
+        const v = cellVal(d, c);
+        if (c.num) return "<td class=\"num\">" + (c.pct ? pct(num(v)) : fmt(num(v), c.d)) + "</td>";
+        if (c.k === "deal") return "<td class=\"deal\" title=\"" + escapeHtml(v || "") + "\">" + escapeHtml(v || "—") + "</td>";
+        if (c.k === "tenantType") return "<td><span class=\"dot\" style=\"background:" + typeMeta(d).color + "\"></span>" + escapeHtml(v) + "</td>";
         return "<td>" + escapeHtml(v == null ? "—" : String(v)) + "</td>";
       }).join("");
-      return "<tr class=\"" + (d.isWyfi?"wyfi":"") + "\">" + cells + "</tr>";
+      return "<tr>" + cells + "</tr>";
     }).join("") || ("<tr><td colspan=\"" + COLS.length + "\" class=\"empty\">No deals match filters</td></tr>");
   }
 
   function render() {
     const rows = filtered();
+    document.querySelectorAll(".cby").forEach(el => {
+      el.textContent = els.colorBy.value === "platform" ? "platform" : "customer type";
+    });
     renderKpis(rows);
     renderTable(rows);
     if (!chartsEnabled) return;
     try {
-      buildBubble(rows);
-      buildTime(rows);
+      buildGpuHr(rows);
+      buildArr(rows);
+      buildNoi(rows);
+      buildNpv(rows);
+      buildXirr(rows);
+      buildCumulative(rows);
       buildBar(rows);
-      buildHist(rows);
     } catch (err) {
       console.error(err);
       showChartError("Chart rendering failed: " + (err && err.message ? err.message : String(err)));
@@ -548,12 +729,11 @@ const DATA = {"deals":[{"col":"AH","deal":"IREN MSFT","announced":"2025-11-03","
   }
 
   ["input","change"].forEach(ev => {
-    [els.q, els.platform, els.clip, els.wyfiOnly, els.requireArrTcv, els.xField, els.yField, els.sizeField]
+    [els.q, els.platform, els.ttype, els.minTcv, els.year, els.dateBasis, els.colorBy]
       .forEach(el => el.addEventListener(ev, render));
   });
 
   render();
 })();
-
 </script>
 </body></html>

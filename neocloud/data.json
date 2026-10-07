@@ -27,12 +27,12 @@
       "npvPerMw": 11.899735544732753,
       "xirr": 0.28517150282859804,
       "gpuPayback": 3.296918976920112,
-      "pps": 5.213642580194545,
-      "pctPrice": 0.11326618683889952,
+      "pps": 5.350523941935801,
+      "pctPrice": 0.1388123995832352,
       "arrMultiple": 1.2242405367943643,
       "noiMarginPct": 43.406067077332416,
       "xirrPct": 28.517150282859806,
-      "isWyfi": false
+      "tenantType": "Hyperscaler / IG"
     },
     {
       "col": "BN",
@@ -62,11 +62,11 @@
       "xirr": 0.2533090531826019,
       "gpuPayback": 2.3648910868034574,
       "pps": 0.041579934223982776,
-      "pctPrice": 0.01329749407527672,
+      "pctPrice": 0.015175158475906121,
       "arrMultiple": 0.6109520105107474,
       "noiMarginPct": 92.350976,
       "xirrPct": 25.33090531826019,
-      "isWyfi": false
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "R",
@@ -95,12 +95,12 @@
       "npvPerMw": 22.407970558497002,
       "xirr": null,
       "gpuPayback": 2.4495331471541713,
-      "pps": 7.534958243757439,
-      "pctPrice": 0.13020491176356383,
+      "pps": 8.998551571228225,
+      "pctPrice": 0.20005672679475822,
       "arrMultiple": 1.32803544629983,
       "noiMarginPct": 44.55620265968655,
       "xirrPct": null,
-      "isWyfi": false
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "BV",
@@ -130,11 +130,11 @@
       "xirr": 0.3511697709560394,
       "gpuPayback": 2.3361803953713,
       "pps": 0.09544257787574084,
-      "pctPrice": 0.02485483798847418,
+      "pctPrice": 0.028618464130656926,
       "arrMultiple": 0.909952011183107,
       "noiMarginPct": 92.27079591836734,
       "xirrPct": 35.11697709560394,
-      "isWyfi": false
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "AX",
@@ -164,11 +164,11 @@
       "xirr": 0.7042716145515444,
       "gpuPayback": 0.800036462267856,
       "pps": 1.721675726102213,
-      "pctPrice": 0.011525476811502297,
+      "pctPrice": 0.010306349752183256,
       "arrMultiple": 1.5354217157329737,
       "noiMarginPct": 93.74572727272728,
       "xirrPct": 70.42716145515445,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "AP",
@@ -197,12 +197,12 @@
       "npvPerMw": 35.93966577411432,
       "xirr": 1.331869947910309,
       "gpuPayback": 2.545824847250509,
-      "pps": 3.149256066969026,
-      "pctPrice": 0.06841746832433253,
+      "pps": 3.2319380790724623,
+      "pctPrice": 0.08384843894337689,
       "arrMultiple": 2.114097986712607,
       "noiMarginPct": 36.56555283972009,
       "xirrPct": 133.1869947910309,
-      "isWyfi": false
+      "tenantType": "NVIDIA-backstopped"
     },
     {
       "col": "B",
@@ -232,11 +232,11 @@
       "xirr": 0.7034517884254454,
       "gpuPayback": 1.1246137409491477,
       "pps": 0.19490118305769588,
-      "pctPrice": 0.009808865825076918,
+      "pctPrice": 0.011705776760221977,
       "arrMultiple": 0.9010479803135161,
       "noiMarginPct": 83.80350684931507,
       "xirrPct": 70.34517884254454,
-      "isWyfi": true
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "J",
@@ -266,11 +266,11 @@
       "xirr": 2.9802322387695314e-09,
       "gpuPayback": 3.1933382052211083,
       "pps": 0.7293527418799215,
-      "pctPrice": 0.03670641230604691,
+      "pctPrice": 0.04380496948227757,
       "arrMultiple": 0.8944282191864438,
       "noiMarginPct": 40.80085306815895,
       "xirrPct": 2.980232238769531e-07,
-      "isWyfi": true
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "Z",
@@ -300,11 +300,11 @@
       "xirr": null,
       "gpuPayback": 2.531548941851489,
       "pps": 1.469732164127461,
-      "pctPrice": 0.07992018293243398,
+      "pctPrice": 0.10328405932027132,
       "arrMultiple": 0.7429646575462273,
       "noiMarginPct": 29.87850082406616,
       "xirrPct": null,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "BF",
@@ -334,11 +334,11 @@
       "xirr": 0.8474900126457214,
       "gpuPayback": 0.7060919041886473,
       "pps": 1.455254604657187,
-      "pctPrice": 0.009741964149532649,
+      "pctPrice": 0.008711491198187291,
       "arrMultiple": 1.7241603468221023,
       "noiMarginPct": 98.77804347826087,
       "xirrPct": 84.74900126457214,
-      "isWyfi": false
+      "tenantType": "Hyperscaler / IG"
     },
     {
       "col": "CD",
@@ -368,11 +368,11 @@
       "xirr": 0.5083102047443391,
       "gpuPayback": 0.9553365934054369,
       "pps": 0.3225215155081262,
-      "pctPrice": 0.0021590675827294565,
+      "pctPrice": 0.00193068850947696,
       "arrMultiple": 2.343656346025717,
       "noiMarginPct": 92.86284895833333,
       "xirrPct": 50.831020474433906,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "CL",
@@ -402,11 +402,11 @@
       "xirr": 0.580252653360367,
       "gpuPayback": 0.8640148610556103,
       "pps": 2.8507398449046706,
-      "pctPrice": 0.011663283875724862,
+      "pctPrice": 0.01213752222465479,
       "arrMultiple": 2.1400074452161086,
       "noiMarginPct": 92.59100000000001,
       "xirrPct": 58.0252653360367,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "CT",
@@ -435,12 +435,12 @@
       "npvPerMw": 11.566870337142321,
       "xirr": null,
       "gpuPayback": 2.946043218454014,
-      "pps": 3.403315761107177,
-      "pctPrice": 0.05880967273383752,
+      "pps": 4.06437718681041,
+      "pctPrice": 0.09035965288595843,
       "arrMultiple": 0.5756876741193693,
       "noiMarginPct": 20.31549743527325,
       "xirrPct": null,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "DB",
@@ -470,11 +470,11 @@
       "xirr": 0.3237106740474701,
       "gpuPayback": 1.3028014574005637,
       "pps": 1.926841343362538,
-      "pctPrice": 0.002967932816861061,
+      "pctPrice": 0.002663885062437839,
       "arrMultiple": 0.9763173111383504,
       "noiMarginPct": 92.1092,
       "xirrPct": 32.37106740474701,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "DJ",
@@ -504,11 +504,11 @@
       "xirr": null,
       "gpuPayback": 1.8214704256186678,
       "pps": 1.0110472028144815,
-      "pctPrice": 0.050883356373936525,
+      "pctPrice": 0.06072355572459349,
       "arrMultiple": 0.721384146154509,
       "noiMarginPct": 48.04767822719357,
       "xirrPct": null,
-      "isWyfi": true
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "DR",
@@ -538,11 +538,11 @@
       "xirr": 2.9802322387695314e-09,
       "gpuPayback": 2.591722665790235,
       "pps": 0.09848924074501968,
-      "pctPrice": 0.00495670540591647,
+      "pctPrice": 0.005915269714415597,
       "arrMultiple": 0.10736040467458872,
       "noiMarginPct": 23.34436702175791,
       "xirrPct": 2.980232238769531e-07,
-      "isWyfi": true
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "DZ",
@@ -572,11 +572,11 @@
       "xirr": null,
       "gpuPayback": 2.4724581327561213,
       "pps": 0.5249536521969426,
-      "pctPrice": 0.026419541728792923,
+      "pctPrice": 0.031528747879696256,
       "arrMultiple": 1.1771742780788172,
       "noiMarginPct": 31.062739161662538,
       "xirrPct": null,
-      "isWyfi": true
+      "tenantType": "Undisclosed"
     },
     {
       "col": "EH",
@@ -606,11 +606,11 @@
       "xirr": 0.0349316269159317,
       "gpuPayback": 2.801650898733291,
       "pps": -0.0824833413828486,
-      "pctPrice": -0.026378631034842368,
+      "pctPrice": -0.030103409263813358,
       "arrMultiple": -0.24756250143224975,
       "noiMarginPct": 78.4991709090909,
       "xirrPct": 3.4931626915931697,
-      "isWyfi": false
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "EP",
@@ -639,12 +639,12 @@
       "npvPerMw": 30.695258412733654,
       "xirr": 0.4099411666393281,
       "gpuPayback": 1.9996805718586512,
-      "pps": 2.4661890241419284,
-      "pctPrice": 0.04261601907969464,
+      "pps": 2.9452225745940774,
+      "pctPrice": 0.06547849209857887,
       "arrMultiple": 1.4746890904991612,
       "noiMarginPct": 82.3724053619303,
       "xirrPct": 40.994116663932815,
-      "isWyfi": false
+      "tenantType": "Undisclosed"
     },
     {
       "col": "EX",
@@ -674,11 +674,11 @@
       "xirr": null,
       "gpuPayback": 1.6464847550479724,
       "pps": 0.39064214027679023,
-      "pctPrice": 0.0015982413070812138,
+      "pctPrice": 0.001663227062957339,
       "arrMultiple": 0.23438528416607415,
       "noiMarginPct": 68.5117354368932,
       "xirrPct": null,
-      "isWyfi": false
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "FF",
@@ -708,11 +708,11 @@
       "xirr": 27.416698265075688,
       "gpuPayback": 2.2117203252182955,
       "pps": 0.7230754721552397,
-      "pctPrice": 0.058242083943233165,
+      "pctPrice": 0.07085501931947474,
       "arrMultiple": 2.503414396326973,
       "noiMarginPct": 86.47115,
       "xirrPct": 2741.669826507569,
-      "isWyfi": false
+      "tenantType": "Undisclosed"
     },
     {
       "col": "FN",
@@ -746,7 +746,7 @@
       "arrMultiple": 2.075912574861172,
       "noiMarginPct": 69.39434853293342,
       "xirrPct": 58.63775074481965,
-      "isWyfi": true
+      "tenantType": "Frontier Lab"
     },
     {
       "col": "FW",
@@ -775,12 +775,12 @@
       "npvPerMw": 27.807387090988236,
       "xirr": null,
       "gpuPayback": 1.6114520525870522,
-      "pps": 7.995275697428511,
-      "pctPrice": 0.17369706055677842,
+      "pps": 8.205187329867258,
+      "pctPrice": 0.21287293630476734,
       "arrMultiple": 1.2165731852307353,
       "noiMarginPct": 39.751357760593045,
       "xirrPct": null,
-      "isWyfi": false
+      "tenantType": "Neocloud / Enterprise"
     },
     {
       "col": "GE",
@@ -809,12 +809,12 @@
       "npvPerMw": 49.512383025615954,
       "xirr": null,
       "gpuPayback": 1.442632515814859,
-      "pps": 54.23226999853683,
-      "pctPrice": 1.1781940038787058,
+      "pps": 55.65610887002354,
+      "pctPrice": 1.4439255122590098,
       "arrMultiple": 1.9804953210246383,
       "noiMarginPct": 54.37641944817611,
       "xirrPct": null,
-      "isWyfi": false
+      "tenantType": "Undisclosed"
     },
     {
       "col": "GM",
@@ -848,7 +848,7 @@
       "arrMultiple": 1.7549256334749357,
       "noiMarginPct": 32.52962848050265,
       "xirrPct": -43.51107535883785,
-      "isWyfi": true
+      "tenantType": "Hyperscaler / IG"
     },
     {
       "col": "GU",
@@ -882,7 +882,7 @@
       "arrMultiple": 2.759188285241911,
       "noiMarginPct": 49.978565800314165,
       "xirrPct": -25.787132903933536,
-      "isWyfi": true
+      "tenantType": "Hyperscaler / IG"
     },
     {
       "col": "HC",
@@ -916,7 +916,7 @@
       "arrMultiple": 2.1971089173394422,
       "noiMarginPct": 70.86811899328296,
       "xirrPct": 2.980232238769531e-07,
-      "isWyfi": false
+      "tenantType": "NVIDIA-backstopped"
     },
     {
       "col": "HL",
@@ -950,7 +950,7 @@
       "arrMultiple": 1.0560473762938363,
       "noiMarginPct": 64.66884199002216,
       "xirrPct": 62.43252456188202,
-      "isWyfi": true
+      "tenantType": "NVIDIA-backstopped"
     },
     {
       "col": "HU",
@@ -980,11 +980,11 @@
       "xirr": 27.416698265075688,
       "gpuPayback": 2.2117203252182955,
       "pps": 0.7230754721552397,
-      "pctPrice": 0.058242083943233165,
+      "pctPrice": 0.07085501931947474,
       "arrMultiple": 2.503414396326973,
       "noiMarginPct": 86.47115,
       "xirrPct": 2741.669826507569,
-      "isWyfi": false
+      "tenantType": "Undisclosed"
     },
     {
       "col": "IC",
@@ -1018,8 +1018,77 @@
       "arrMultiple": 2.353928143270226,
       "noiMarginPct": 87.71038461538463,
       "xirrPct": 89.57999110221864,
-      "isWyfi": false
+      "tenantType": "Neocloud / Enterprise"
+    },
+    {
+      "col": "IK",
+      "deal": "Rumble Anthropic",
+      "announced": "2026-09-14",
+      "platform": "VR200",
+      "gpuCount": 30000,
+      "termYrs": 6,
+      "start": "2027-06-30",
+      "end": "2033-06-30",
+      "tcvMm": 13700,
+      "arrMm": 2283.3333333333335,
+      "gpuHr": 8.688483003551497,
+      "gpuHrAdj": 4.344241501775748,
+      "kwPerGpu": 3.2,
+      "itMw": 96,
+      "arrPerMw": 23.784722222222225,
+      "costPerGpuK": 125000,
+      "capexMm": 3750,
+      "tcvCapex": 3.6533333333333333,
+      "prepayPct": 0,
+      "prepayMm": 0,
+      "noiMargin": 0.5570164726955598,
+      "noiPerMw": 13.248482076265917,
+      "npv10": 5468.9666396756365,
+      "npvPerMw": 56.968402496621216,
+      "xirr": 1.1101316571235658,
+      "gpuPayback": 1.779103250992534,
+      "pps": 13.672416599189091,
+      "pctPrice": 1.8266421642203194,
+      "arrMultiple": 2.3951678713907896,
+      "noiMarginPct": 55.70164726955598,
+      "xirrPct": 111.01316571235658,
+      "tenantType": "Frontier Lab"
+    },
+    {
+      "col": "IT",
+      "deal": "Boost Run Cohere",
+      "announced": "2026-09-03",
+      "platform": "GB300",
+      "gpuCount": 2160,
+      "termYrs": 5,
+      "start": "2027-06-01",
+      "end": "2032-06-30",
+      "tcvMm": 525.6,
+      "arrMm": 105.12,
+      "gpuHr": 5.555555555555555,
+      "gpuHrAdj": 2.7777777777777777,
+      "kwPerGpu": 2.75,
+      "itMw": 5.94,
+      "arrPerMw": 17.696969696969695,
+      "costPerGpuK": 85000,
+      "capexMm": 183.6,
+      "tcvCapex": 2.8627450980392157,
+      "prepayPct": 0.25,
+      "prepayMm": 131.4,
+      "noiMargin": 0.8681780821917808,
+      "noiPerMw": 15.364121212121212,
+      "npv10": 218.57660633856148,
+      "npvPerMw": 36.797408474505296,
+      "xirr": 1.5519912123680117,
+      "gpuPayback": 2.0117708316897294,
+      "pps": 2.749825677978003,
+      "pctPrice": 0.19324143907083646,
+      "arrMultiple": 2.079305615853895,
+      "noiMarginPct": 86.81780821917809,
+      "xirrPct": 155.19912123680118,
+      "tenantType": "Neocloud / Enterprise"
     }
   ],
-  "n": 30
+  "n": 32,
+  "generated": "2026-10-07T18:08:34Z"
 }
